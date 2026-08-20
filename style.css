@@ -1527,4 +1527,18 @@ ul { list-style: none; }
   }
 }
 
+/* ══════════════════════════════
+   NETLIFY WIDGET / BADGE HIDE
+   ══════════════════════════════ */
+iframe[src*="netlify"],
+[data-netlify-deploy-preview],
+#netlify-modal-root,
+.netlify-badge {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+
 

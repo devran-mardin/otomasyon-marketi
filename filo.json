@@ -1,0 +1,9 @@
+{
+  "id": "Otomasyon_Marketi",
+  "name": "Otomasyon Market",
+  "description": "AI otomasyon çözümlerini sergileyen ve aylık abonelikle satan profesyonel vitrin web sitesi",
+  "category": "Web Site & Satış",
+  "tech_stack": ["HTML", "CSS", "JavaScript", "Google Fonts"],
+  "status": "active",
+  "created_at": "2026-08-18"
+}

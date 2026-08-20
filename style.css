@@ -1529,17 +1529,83 @@ ul { list-style: none; }
 }
 
 /* ══════════════════════════════
-   NETLIFY WIDGET / BADGE HIDE
+   HERO HIZLI ERİŞİM KARTLARI
    ══════════════════════════════ */
-iframe[src*="netlify"],
-[data-netlify-deploy-preview],
-#netlify-modal-root,
-.netlify-badge {
-  display: none !important;
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
+.hero-nav-cards {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
 }
+
+.nav-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.1rem 1.4rem;
+  min-width: 140px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-base);
+  cursor: pointer;
+}
+
+.nav-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+.nav-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.65rem;
+  transition: transform var(--transition-fast);
+}
+
+.nav-card:hover .nav-card-icon {
+  transform: scale(1.1);
+}
+
+.nav-card-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.nav-card-whatsapp .nav-card-icon { background: rgba(37,211,102,0.12); color: var(--color-whatsapp); }
+.nav-card-whatsapp:hover { border-color: var(--color-whatsapp); }
+
+.nav-card-instagram .nav-card-icon { background: rgba(228,64,95,0.12); color: var(--color-instagram); }
+.nav-card-instagram:hover { border-color: var(--color-instagram); }
+
+.nav-card-telegram .nav-card-icon { background: rgba(0,136,204,0.12); color: var(--color-telegram); }
+.nav-card-telegram:hover { border-color: var(--color-telegram); }
+
+.nav-card-email .nav-card-icon { background: rgba(234,88,12,0.12); color: #ea580c; }
+.nav-card-email:hover { border-color: #ea580c; }
+
+.nav-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.15rem;
+}
+
+.nav-card-subtitle {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
 
 
 

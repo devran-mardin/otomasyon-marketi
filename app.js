@@ -128,6 +128,25 @@ function initCategoryFilters() {
       });
     });
   });
+
+  // Hero Hızlı Erişim Kartları Tıklaması
+  const heroNavCards = document.querySelectorAll(".hero-nav-cards .nav-card");
+  heroNavCards.forEach(card => {
+    card.addEventListener("click", (e) => {
+      e.preventDefault();
+      const filterCategory = card.dataset.filter;
+      const targetBtn = document.querySelector(`.filter-btn[data-category="${filterCategory}"]`);
+      if (targetBtn) {
+        targetBtn.click();
+      }
+      const otomasyonlarSection = document.getElementById("otomasyonlar");
+      if (otomasyonlarSection) {
+        const navHeight = navbar ? navbar.offsetHeight : 80;
+        const top = otomasyonlarSection.getBoundingClientRect().top + window.scrollY - navHeight;
+        window.scrollTo({ top, behavior: "smooth" });
+      }
+    });
+  });
 }
 
 // ── Ürün Detay Modalı ──

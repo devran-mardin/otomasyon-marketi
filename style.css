@@ -1064,6 +1064,20 @@ ul { list-style: none; }
   font-weight: 800;
 }
 
+.product-features .feature-highlight {
+  color: #38bdf8;
+  font-weight: 600;
+  background: rgba(6, 182, 212, 0.12);
+  border: 1px solid rgba(6, 182, 212, 0.25);
+  padding: 0.35rem 0.65rem;
+  border-radius: var(--radius-md);
+  margin-top: 0.25rem;
+}
+
+.product-features .feature-highlight .check {
+  color: #38bdf8;
+}
+
 .product-footer {
   margin-top: auto;
   padding-top: 1.25rem;

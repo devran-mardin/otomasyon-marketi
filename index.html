@@ -13,6 +13,23 @@
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/logo.png">
   <link rel="stylesheet" href="style.css">
+  <!-- ═══════════════ SEO STRUCTURED DATA (JSON-LD) ═══════════════ -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "Otomasyon Market",
+    "url": "https://otomasyonmarketi.net",
+    "logo": "https://otomasyonmarketi.net/assets/logo.png",
+    "description": "Yapay zeka destekli otomasyon çözümleri. WhatsApp, Instagram, Telegram, E-Posta ve B2B Lead otomasyonları.",
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "telephone": "+90-553-055-1369",
+      "contactType": "customer service",
+      "availableLanguage": ["Turkish"]
+    }
+  }
+  </script>
 </head>
 
 <body>
@@ -35,9 +52,9 @@
       <ul class="nav-links" id="navLinks">
         <li><a href="#anasayfa" class="nav-link active">Ana Sayfa</a></li>
         <li><a href="#otomasyonlar" class="nav-link">Otomasyonlar</a></li>
+        <li><a href="#tasarruf" class="nav-link">Tasarruf Hesabı</a></li>
         <li><a href="#fiyatlandirma" class="nav-link">Fiyatlandırma</a></li>
         <li><a href="#hakkimizda" class="nav-link">Hakkımızda</a></li>
-        <li><a href="#vizyonumuz" class="nav-link">Vizyonumuz</a></li>
         <li><a href="#sss" class="nav-link">SSS</a></li>
         <li><a href="#iletisim" class="nav-link">İletişim</a></li>
       </ul>
@@ -112,6 +129,17 @@
           <div class="chat-msg msg-user">
             <p>Süper, evet lütfen 🙌</p>
             <span class="chat-time">23:49</span>
+          </div>
+        </div>
+
+        <!-- Canlı Simülasyon Senaryo Butonları -->
+        <div class="chat-sim-controls">
+          <span class="sim-label">⚡ Canlı Test Et:</span>
+          <div class="sim-chips">
+            <button class="sim-chip" data-scenario="fiyat">💰 Fiyat Sor</button>
+            <button class="sim-chip" data-scenario="randevu">📅 Randevu Al</button>
+            <button class="sim-chip" data-scenario="stok">📦 Stok Sorgula</button>
+            <button class="sim-chip" data-scenario="dm">📩 Auto-DM</button>
           </div>
         </div>
       </div>
@@ -264,6 +292,18 @@
         <a href="https://wa.me/905530551369?text=Merhaba,%201%20ay%20ücretsiz%20otomasyon%20fırsatından%20yararlanmak%20istiyorum." class="btn-campaign-cta" target="_blank" rel="noopener">
           1 Ay Ücretsiz Başlat 🚀
         </a>
+      </div>
+
+      <!-- Canlı Arama Çubuğu -->
+      <div class="catalog-search-wrapper">
+        <div class="search-input-box">
+          <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="catalogSearchInput" placeholder="Otomasyon ara... (örn: WhatsApp, Stok, Instagram, Lead, E-Posta)">
+          <button class="search-clear-btn" id="searchClearBtn" aria-label="Aramayı temizle">&times;</button>
+        </div>
       </div>
 
       <!-- Kategori Filtreleri -->
@@ -610,6 +650,81 @@
     </div>
   </section>
 
+  <!-- ═══════════════ İNTERAKTİF TASARRUF & ROI HESAPLAYICI ═══════════════ -->
+  <section class="section section-roi" id="tasarruf">
+    <div class="container">
+      <div class="section-header center">
+        <span class="section-badge">Zaman & Maliyet Analizi</span>
+        <h2>Otomasyon İşletmenize Ne Kadar Kazandırır?</h2>
+        <p>Aşağıdaki kaydırıcıları işletmenizin günlük hacmine göre ayarlayın, ayda kaç saat ve kaç ₺ tasarruf edeceğinizi görün.</p>
+      </div>
+
+      <div class="roi-calculator-card">
+        <div class="roi-inputs">
+          <!-- Input 1 -->
+          <div class="roi-field">
+            <div class="roi-field-header">
+              <label for="sliderMessages">Günde Gelen Müşteri Mesajı / Talebi</label>
+              <span class="roi-val-badge" id="valMessages">50 mesaj</span>
+            </div>
+            <input type="range" id="sliderMessages" min="10" max="500" step="5" value="50" class="roi-slider">
+          </div>
+
+          <!-- Input 2 -->
+          <div class="roi-field">
+            <div class="roi-field-header">
+              <label for="sliderTime">Mesaj Başı Harcanan Zaman (Dakika)</label>
+              <span class="roi-val-badge" id="valTime">4 dk</span>
+            </div>
+            <input type="range" id="sliderTime" min="1" max="15" step="1" value="4" class="roi-slider">
+          </div>
+
+          <!-- Input 3 -->
+          <div class="roi-field">
+            <div class="roi-field-header">
+              <label for="sliderWage">Saatlik Personel / Mesai Maliyeti (₺)</label>
+              <span class="roi-val-badge" id="valWage">₺200 / saat</span>
+            </div>
+            <input type="range" id="sliderWage" min="100" max="1000" step="25" value="200" class="roi-slider">
+          </div>
+        </div>
+
+        <div class="roi-results-box">
+          <div class="roi-result-item">
+            <span class="roi-res-icon">⏳</span>
+            <div class="roi-res-info">
+              <span class="roi-res-label">Aylık Tasarruf Edilen Zaman</span>
+              <span class="roi-res-value" id="resHours">100 Saat</span>
+            </div>
+          </div>
+
+          <div class="roi-result-item highlight">
+            <span class="roi-res-icon">💰</span>
+            <div class="roi-res-info">
+              <span class="roi-res-label">Aylık İş Gücü & Maliyet Tasarrufu</span>
+              <span class="roi-res-value" id="resSavings">₺20.000</span>
+            </div>
+          </div>
+
+          <div class="roi-result-item">
+            <span class="roi-res-icon">⚡</span>
+            <div class="roi-res-info">
+              <span class="roi-res-label">Tahmini Kaçırılmayan Ek Satış Kazancı</span>
+              <span class="roi-res-value" id="resRevenue">₺15.000+</span>
+            </div>
+          </div>
+
+          <div class="roi-cta-box">
+            <p class="roi-promo-note">🎁 <strong>1 Ay Ücretsiz Kampanyası</strong> ile ilk ay bu kazancı ₺0 maliyetle elde edin!</p>
+            <a href="#" id="roiWaBtn" class="btn-roi-cta" target="_blank" rel="noopener">
+              Bu Tasarrufu Ücretsiz Başlat 🚀
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ═══════════════ FİYATLANDIRMA ═══════════════ -->
   <section class="section" id="fiyatlandirma">
     <div class="container">
@@ -677,6 +792,17 @@
           <a href="https://wa.me/905530551369?text=Merhaba,%20Enterprise%20özel%20otomasyon%20teklifi%20almak%20istiyorum."
             class="btn-pricing" target="_blank" rel="noopener">Bizimle İletişime Geçin</a>
         </div>
+      </div>
+
+      <!-- Kendi Paketini Oluştur Banner -->
+      <div class="custom-pkg-cta-banner">
+        <div class="custom-pkg-info">
+          <h3>İhtiyacınıza Özel Kombinasyon mu Arıyorsunuz?</h3>
+          <p>Birden fazla otomasyonu paket haline getirin, sepette ekstra %20 indirim kazanın ve 1 ay ücretsiz deneyin.</p>
+        </div>
+        <button class="btn-open-custom-pkg" id="btnOpenCustomPkg">
+          ✨ Kendi Paketini Oluştur
+        </button>
       </div>
     </div>
   </section>
@@ -849,6 +975,96 @@
             <polyline points="12 5 19 12 12 19" />
           </svg>
         </a>
+      </div>
+    </div>
+  <!-- ═══════════════ ÖZEL PAKET OLUŞTURUCU MODAL ═══════════════ -->
+  <div class="modal-overlay" id="customPackageModal">
+    <div class="modal-card modal-card-wide">
+      <button class="modal-close" id="pkgModalClose" aria-label="Kapat">&times;</button>
+      <div class="modal-header">
+        <span class="modal-platform-badge">🚀 Özel İhtiyaç Sihirbazı</span>
+        <h3>İşletmenize Özel Otomasyon Paketi Oluşturun</h3>
+        <p style="color:var(--color-text-secondary);font-size:0.9rem;margin-top:0.25rem;">İhtiyacınız olan platformları seçin, anında tahmini fiyat ve kampanya teklifi alın.</p>
+      </div>
+
+      <div class="modal-body">
+        <div class="pkg-builder-grid">
+          <div class="pkg-options">
+            <h4 style="margin-bottom:0.75rem;color:var(--color-text);">1. Modülleri Seçin:</h4>
+            <div class="pkg-checkboxes">
+              <label class="pkg-check-card">
+                <input type="checkbox" class="pkg-mod-check" value="WhatsApp AI Agent" data-price="1490" checked>
+                <div class="pkg-card-content">
+                  <span class="pkg-card-title">💬 WhatsApp AI Agent</span>
+                  <span class="pkg-card-desc">7/24 Akıllı Müşteri Temsilcisi & Randevu</span>
+                </div>
+              </label>
+
+              <label class="pkg-check-card">
+                <input type="checkbox" class="pkg-mod-check" value="Instagram Auto-DM" data-price="1190" checked>
+                <div class="pkg-card-content">
+                  <span class="pkg-card-title">📸 Instagram Auto-DM & Yorum</span>
+                  <span class="pkg-card-desc">Reels yorumlarından otomatik teklif mesajı</span>
+                </div>
+              </label>
+
+              <label class="pkg-check-card">
+                <input type="checkbox" class="pkg-mod-check" value="E-Posta Asistanı" data-price="1290">
+                <div class="pkg-card-content">
+                  <span class="pkg-card-title">✉️ AI E-Posta Asistanı</span>
+                  <span class="pkg-card-desc">Gelen maillere otomatik kurumsal taslak</span>
+                </div>
+              </label>
+
+              <label class="pkg-check-card">
+                <input type="checkbox" class="pkg-mod-check" value="Telegram VIP Bot" data-price="990">
+                <div class="pkg-card-content">
+                  <span class="pkg-card-title">✈️ Telegram VIP & Yanıt Botu</span>
+                  <span class="pkg-card-desc">Grup ve VIP kanal yönetim otomasyonu</span>
+                </div>
+              </label>
+
+              <label class="pkg-check-card">
+                <input type="checkbox" class="pkg-mod-check" value="Stok Alarm Otomasyonu" data-price="1690">
+                <div class="pkg-card-content">
+                  <span class="pkg-card-title">📦 Stok Control & Alarm</span>
+                  <span class="pkg-card-desc">Market & E-Ticaret anlık stok uyarısı</span>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          <div class="pkg-summary-card">
+            <h4 style="margin-bottom:0.75rem;color:var(--color-text);">2. Paket Özeti</h4>
+            <div class="pkg-summary-body">
+              <div class="pkg-sum-row">
+                <span>Seçilen Modüller:</span>
+                <strong id="pkgSelectedCount">2 Modül</strong>
+              </div>
+              <ul class="pkg-selected-list" id="pkgSelectedList">
+                <!-- JS dolduracak -->
+              </ul>
+              <div class="pkg-sum-row highlight">
+                <span>Toplam Liste Fiyatı:</span>
+                <span class="pkg-orig-price" id="pkgOrigPrice">₺2.680 /ay</span>
+              </div>
+              <div class="pkg-sum-row discount">
+                <span>Paket İndirimi (%20):</span>
+                <span id="pkgDiscount">-₺536</span>
+              </div>
+              <div class="pkg-total-box">
+                <span class="pkg-total-label">Tahmini Paket Fiyatı:</span>
+                <span class="pkg-total-price" id="pkgTotalPrice">₺2.144 /ay</span>
+              </div>
+              <div class="pkg-promo-pill">
+                🎁 İlk 1 Ay ÜCRETSİZ Kampanyası Dahil!
+              </div>
+            </div>
+            <a href="#" id="pkgWaBtn" class="btn-pkg-order" target="_blank" rel="noopener">
+              Bu Paket İçin WhatsApp'tan Teklif Al ➔
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>

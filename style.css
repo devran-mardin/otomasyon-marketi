@@ -274,8 +274,22 @@ ul { list-style: none; }
 .hero-content {
   position: relative;
   z-index: 1;
-  text-align: center;
+  display: grid;
+  grid-template-columns: 1fr 440px;
+  gap: 3.5rem;
+  align-items: center;
+  text-align: left;
   animation: fadeInUp 0.8s ease-out;
+}
+
+.hero-text-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.hero-widget-col {
+  width: 100%;
 }
 
 /* Domain Başlık */
@@ -314,8 +328,8 @@ ul { list-style: none; }
 
 /* Canlı Otomasyon Sohbet Simülasyonu */
 .hero-chat-widget {
-  max-width: 440px;
-  margin: 1.75rem auto 2.25rem auto;
+  max-width: 100%;
+  margin: 0;
   background: rgba(10, 15, 26, 0.95);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
@@ -1648,26 +1662,8 @@ ul { list-style: none; }
 
 .problem-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.25rem;
-  align-items: stretch;
-}
-
-.problem-grid .hero-chat-widget {
-  max-width: 100%;
-  margin: 0;
-  height: 100%;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 25px rgba(16, 185, 129, 0.15);
-  display: flex;
-  flex-direction: column;
-}
-
-.problem-grid .hero-chat-widget .chat-body {
-  flex-grow: 1;
-  height: 220px;
-  max-height: 240px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
 }
 
 .problem-card {
@@ -1793,14 +1789,27 @@ ul { list-style: none; }
 }
 .cyan-tag .metric-dot { background: #10b981; }
 
-@media (max-width: 1200px) {
-  .problem-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
+@media (max-width: 1024px) {
+  .hero-content {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+    text-align: center;
+  }
+  .hero-text-col {
+    align-items: center;
+  }
+  .hero-chat-widget {
+    max-width: 440px;
+    margin: 0 auto;
+  }
+  .hero-nav-cards {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .problem-grid {
     grid-template-columns: 1fr;
     max-width: 540px;
@@ -1812,12 +1821,11 @@ ul { list-style: none; }
    HERO HIZLI ERİŞİM KARTLARI
    ══════════════════════════════ */
 .hero-nav-cards {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-  margin-top: 2.5rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-top: 2rem;
+  width: 100%;
 }
 
 .nav-card {

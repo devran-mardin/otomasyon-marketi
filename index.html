@@ -941,7 +941,7 @@
           <h3>Instagram</h3>
           <p>@otomasyonmarketi.netai</p>
         </a>
-        <a href="mailto:platform@otomasyonmarketi.net" class="contact-card">
+        <a href="mailto:platform@otomasyonmarketi.net?subject=Otomasyon%20Market%20Bilgi%20ve%20Teklif%20Talebi&body=Merhaba,%20otomasyon%20çözümleriniz%20hakkında%20bilgi%20almak%20istiyorum." class="contact-card" id="emailContactCard">
           <div class="contact-icon contact-icon-email">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
               stroke-linejoin="round">
@@ -1143,9 +1143,58 @@
         </div>
       </div>
     </div>
+  <!-- ═══════════════ E-POSTA SERVİS SEÇİCİ MODAL ═══════════════ -->
+  <div class="modal-overlay" id="emailProviderModal">
+    <div class="modal-card">
+      <button class="modal-close" id="emailModalClose" aria-label="Kapat">&times;</button>
+      <div class="modal-header">
+        <span class="modal-platform-badge">✉️ E-Posta Gönderimi</span>
+        <h3>E-Posta Servisinizi Seçin</h3>
+        <p style="color:var(--color-text-secondary);font-size:0.9rem;margin-top:0.25rem;">Hangi e-posta sağlayıcısını kullanıyorsanız tek tıkla mesaj hazırlama ekranına yönlendirilin.</p>
+      </div>
+      <div class="modal-body">
+        <div class="email-provider-grid">
+          <a href="https://mail.google.com/mail/?view=cm&fs=1&to=platform@otomasyonmarketi.net&su=Otomasyon%20Market%20Bilgi%20ve%20Teklif%20Talebi&body=Merhaba,%20otomasyon%20çözümleriniz%20hakkında%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener" class="email-provider-btn gmail-btn">
+            <span class="provider-icon">🔴</span>
+            <div class="provider-info">
+              <strong>Gmail Web</strong>
+              <small>Google Mail ile Aç</small>
+            </div>
+            <span class="provider-arrow">➔</span>
+          </a>
+
+          <a href="https://outlook.live.com/mail/0/deeplink/compose?to=platform@otomasyonmarketi.net&subject=Otomasyon%20Market%20Bilgi%20ve%20Teklif%20Talebi&body=Merhaba,%20otomasyon%20çözümleriniz%20hakkında%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener" class="email-provider-btn outlook-btn">
+            <span class="provider-icon">🔷</span>
+            <div class="provider-info">
+              <strong>Outlook & Hotmail Web</strong>
+              <small>Microsoft Mail ile Aç</small>
+            </div>
+            <span class="provider-arrow">➔</span>
+          </a>
+
+          <a href="https://compose.mail.yahoo.com/?to=platform@otomasyonmarketi.net&subject=Otomasyon%20Market%20Bilgi%20ve%20Teklif%20Talebi&body=Merhaba,%20otomasyon%20çözümleriniz%20hakkında%20bilgi%20almak%20istiyorum." target="_blank" rel="noopener" class="email-provider-btn yahoo-btn">
+            <span class="provider-icon">🟣</span>
+            <div class="provider-info">
+              <strong>Yahoo Mail Web</strong>
+              <small>Yahoo Mail ile Aç</small>
+            </div>
+            <span class="provider-arrow">➔</span>
+          </a>
+
+          <a href="mailto:platform@otomasyonmarketi.net?subject=Otomasyon%20Market%20Bilgi%20ve%20Teklif%20Talebi&body=Merhaba,%20otomasyon%20çözümleriniz%20hakkında%20bilgi%20almak%20istiyorum." class="email-provider-btn default-btn">
+            <span class="provider-icon">💻</span>
+            <div class="provider-info">
+              <strong>Varsayılan E-Posta Uygulaması</strong>
+              <small>Masaüstü / Mobil Mail Uygulaması</small>
+            </div>
+            <span class="provider-arrow">➔</span>
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <script src="app.js?v=20260825_02"></script>
+  <script src="app.js?v=20260825_03"></script>
 </body>
 
 </html>

@@ -545,6 +545,41 @@ function initContactForm() {
   });
 }
 
+// ── 6. E-Posta Servis Seçici Modal ──
+function initEmailModal() {
+  const emailCard = document.getElementById("emailContactCard");
+  const emailModal = document.getElementById("emailProviderModal");
+  const closeModalBtn = document.getElementById("emailModalClose");
+
+  if (!emailCard || !emailModal) return;
+
+  emailCard.addEventListener("click", (e) => {
+    // Masaüstünde ve webde e-posta sağlayıcısını seçebilmesi için modali aç
+    e.preventDefault();
+    emailModal.classList.add("active");
+    document.body.style.overflow = "hidden";
+  });
+
+  function closeModal() {
+    emailModal.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+
+  if (closeModalBtn) closeModalBtn.addEventListener("click", closeModal);
+
+  emailModal.addEventListener("click", (e) => {
+    if (e.target === emailModal) closeModal();
+  });
+
+  // Modal içindeki e-posta butonlarına tıklandığında modali kapat
+  const providerBtns = emailModal.querySelectorAll(".email-provider-btn");
+  providerBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      setTimeout(closeModal, 300);
+    });
+  });
+}
+
 // ── Init ──
 document.addEventListener("DOMContentLoaded", () => {
   animateCounters();
@@ -558,6 +593,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initProductSearch();
   initCustomPackageBuilder();
   initContactForm();
+  initEmailModal();
 });
 
 

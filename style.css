@@ -2721,6 +2721,62 @@ ul { list-style: none; }
   color: #4ade80;
 }
 
+/* ══════════════════════════════
+   E-POSTA SERVİS SEÇİCİ MODAL
+   ══════════════════════════════ */
+.email-provider-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.email-provider-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(10, 14, 23, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+  color: #ffffff;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.email-provider-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateX(4px);
+  color: #ffffff;
+}
+
+.provider-icon {
+  font-size: 1.5rem;
+}
+
+.provider-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.provider-info strong {
+  font-size: 0.95rem;
+  color: #ffffff;
+}
+
+.provider-info small {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+.provider-arrow {
+  color: #a5b4fc;
+  font-weight: 700;
+}
+
+
 
 
 

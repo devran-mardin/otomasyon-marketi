@@ -117,7 +117,7 @@ ul { list-style: none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 72px;
+  height: 84px;
 }
 
 .logo {
@@ -133,14 +133,19 @@ ul { list-style: none; }
 .logo-accent { color: var(--color-primary); }
 
 .logo-img {
-  height: 44px;
+  height: 62px;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+  transition: transform var(--transition-fast);
+}
+
+.logo-img:hover {
+  transform: scale(1.03);
 }
 
 .logo-img-footer {
-  height: 54px;
+  height: 72px;
 }
 
 .nav-links {

@@ -1587,8 +1587,8 @@ ul { list-style: none; }
    SESSİZ DARBOĞAZLAR SECTION
    ══════════════════════════════ */
 .problem-section {
-  padding: 2.5rem 0 4.5rem 0;
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  padding: 3.5rem 0 5rem 0;
+  background: var(--color-bg);
   position: relative;
   border-bottom: 1px solid var(--color-border-light);
 }
@@ -1604,22 +1604,22 @@ ul { list-style: none; }
   align-items: center;
   gap: 0.5rem;
   padding: 0.45rem 1.1rem;
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+  background: rgba(239, 68, 68, 0.12);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: var(--radius-full);
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   margin-bottom: 1.25rem;
-  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.06);
+  box-shadow: 0 2px 12px rgba(239, 68, 68, 0.15);
 }
 
 .problem-title {
   font-size: 2.25rem;
   font-weight: 800;
-  color: var(--color-text);
+  color: #ffffff;
   line-height: 1.25;
   margin-bottom: 0.85rem;
   letter-spacing: -0.02em;
@@ -1638,15 +1638,17 @@ ul { list-style: none; }
 }
 
 .problem-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
   border-radius: var(--radius-lg);
   padding: 2.25rem 1.75rem;
   position: relative;
   transition: transform var(--transition-base), box-shadow var(--transition-base), border-color var(--transition-base);
   display: flex;
   flex-direction: column;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
   overflow: hidden;
 }
 
@@ -1666,8 +1668,8 @@ ul { list-style: none; }
 
 .problem-card:hover {
   transform: translateY(-6px);
-  box-shadow: var(--shadow-xl);
-  border-color: rgba(79, 70, 229, 0.25);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.35);
 }
 
 .problem-icon-wrapper {
@@ -1686,34 +1688,34 @@ ul { list-style: none; }
 }
 
 .problem-icon-wrapper.amber {
-  background: #fffbeb;
-  color: #d97706;
-  border: 1px solid #fef3c7;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .problem-icon-wrapper.indigo {
-  background: #eef2ff;
-  color: #4f46e5;
-  border: 1px solid #e0e7ff;
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
 .problem-icon-wrapper.cyan {
-  background: #ecfeff;
-  color: #0891b2;
-  border: 1px solid #cffaff;
+  background: rgba(6, 182, 212, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(6, 182, 212, 0.3);
 }
 
 .problem-card-title {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: #ffffff;
   margin-bottom: 0.75rem;
   line-height: 1.35;
 }
 
 .problem-card-desc {
   font-size: 0.95rem;
-  color: var(--color-text-secondary);
+  color: #cbd5e1;
   line-height: 1.6;
   margin-bottom: 1.75rem;
   flex-grow: 1;
@@ -1738,25 +1740,25 @@ ul { list-style: none; }
 }
 
 .amber-tag {
-  background: #fff8f0;
-  color: #b45309;
-  border: 1px solid #fde68a;
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.25);
 }
-.amber-tag .metric-dot { background: #d97706; }
+.amber-tag .metric-dot { background: #f59e0b; }
 
 .indigo-tag {
-  background: #f5f3ff;
-  color: #5b21b6;
-  border: 1px solid #ddd6fe;
+  background: rgba(99, 102, 241, 0.12);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.25);
 }
-.indigo-tag .metric-dot { background: #7c3aed; }
+.indigo-tag .metric-dot { background: #6366f1; }
 
 .cyan-tag {
-  background: #f0fdf4;
-  color: #047857;
-  border: 1px solid #bbf7d0;
+  background: rgba(16, 185, 129, 0.12);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.25);
 }
-.cyan-tag .metric-dot { background: #059669; }
+.cyan-tag .metric-dot { background: #10b981; }
 
 @media (max-width: 992px) {
   .problem-grid {

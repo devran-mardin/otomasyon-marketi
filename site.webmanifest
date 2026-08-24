@@ -1,0 +1,15 @@
+{
+  "name": "Otomasyon Market — AI Otomasyon Çözümleri",
+  "short_name": "Otomasyon Market",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0b0f19",
+  "theme_color": "#4f46e5"
+}

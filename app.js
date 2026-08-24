@@ -506,6 +506,45 @@ function initCustomPackageBuilder() {
   updatePackageCalculation();
 }
 
+// ── 5. Web İletişim Formu ──
+function initContactForm() {
+  const form = document.getElementById("contactForm");
+  const statusMsg = document.getElementById("formStatus");
+
+  if (!form) return;
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+
+    const name = document.getElementById("formName").value.trim();
+    const phone = document.getElementById("formPhone").value.trim();
+    const service = document.getElementById("formService").value;
+    const msg = document.getElementById("formMessage").value.trim();
+
+    const waText = encodeURIComponent(
+      `Merhaba, web sitenizdeki İletişim Formu üzerinden mesaj gönderiyorum:\n\n` +
+      `👤 Ad Soyad: ${name}\n` +
+      `📞 Telefon: ${phone}\n` +
+      `📦 İlgilenilen Otomasyon: ${service}\n` +
+      (msg ? `📝 Mesaj: ${msg}\n\n` : "") +
+      `1 ay ücretsiz deneme ve detaylar hakkında görüşmek istiyorum.`
+    );
+
+    const waUrl = `https://wa.me/905530551369?text=${waText}`;
+
+    statusMsg.className = "form-status-msg success";
+    statusMsg.innerHTML = `✓ Teşekkürler ${name}! Mesajınız alındı. WhatsApp üzerinden bilgi aktarmak üzere yönlendiriliyorsunuz...`;
+
+    setTimeout(() => {
+      window.open(waUrl, "_blank");
+      form.reset();
+      setTimeout(() => {
+        statusMsg.style.display = "none";
+      }, 5000);
+    }, 1200);
+  });
+}
+
 // ── Init ──
 document.addEventListener("DOMContentLoaded", () => {
   animateCounters();
@@ -518,6 +557,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initChatSimulator();
   initProductSearch();
   initCustomPackageBuilder();
+  initContactForm();
 });
 
 

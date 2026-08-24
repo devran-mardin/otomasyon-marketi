@@ -6,13 +6,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description"
     content="Yapay zeka destekli otomasyon çözümleri. WhatsApp, Instagram, Telegram, Facebook, TikTok otomasyonları.">
+  <link rel="canonical" href="https://otomasyonmarketi.net/">
+  
+  <!-- Open Graph / Facebook / WhatsApp -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://otomasyonmarketi.net/">
+  <meta property="og:title" content="Otomasyon Market — AI Otomasyon Çözümleri">
+  <meta property="og:description" content="Yapay zeka destekli otomasyon çözümleri. WhatsApp, Instagram, Telegram, E-Posta ve B2B Lead otomasyonları.">
+  <meta property="og:image" content="https://otomasyonmarketi.net/assets/logo.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://otomasyonmarketi.net/">
+  <meta property="twitter:title" content="Otomasyon Market — AI Otomasyon Çözümleri">
+  <meta property="twitter:description" content="Yapay zeka destekli otomasyon çözümleri. WhatsApp, Instagram, Telegram, E-Posta ve B2B Lead otomasyonları.">
+  <meta property="twitter:image" content="https://otomasyonmarketi.net/assets/logo.png">
+
   <title>Otomasyon Market — AI Otomasyon Çözümleri</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
     rel="stylesheet">
   <link rel="icon" type="image/png" href="assets/logo.png?v=20260825_04">
-  <link rel="stylesheet" href="style.css?v=20260825_22">
+  <link rel="apple-touch-icon" href="assets/logo.png?v=20260825_04">
+  <link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" href="style.css?v=20260825_23">
   <!-- ═══════════════ SEO STRUCTURED DATA (JSON-LD) ═══════════════ -->
   <script type="application/ld+json">
   {
@@ -935,6 +953,45 @@
           <p>platform@otomasyonmarketi.net</p>
         </a>
       </div>
+
+      <!-- Web İletişim & Teklif Formu -->
+      <div class="contact-form-box">
+        <h3>📩 Bize Mesaj Gönderin</h3>
+        <p>İhtiyacınız olan otomasyonu yazın, 1 saat içinde size özel teklif ve 1 ay ücretsiz deneme detaylarını iletelim.</p>
+        <form id="contactForm">
+          <div class="contact-form-grid">
+            <div class="form-group">
+              <label for="formName">Adınız Soyadınız *</label>
+              <input type="text" id="formName" class="form-input" placeholder="Örn: Ahmet Yılmaz" required>
+            </div>
+            <div class="form-group">
+              <label for="formPhone">Telefon / WhatsApp *</label>
+              <input type="tel" id="formPhone" class="form-input" placeholder="0555 123 45 67" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="formService">İlgilendiğiniz Otomasyon</label>
+            <select id="formService" class="form-select">
+              <option value="WhatsApp Akıllı Müşteri Temsilcisi">WhatsApp Akıllı Müşteri Temsilcisi (₺2.490 /ay)</option>
+              <option value="AI Akıllı Randevu & Takvim">AI Akıllı Randevu & Takvim (₺1.390 /ay)</option>
+              <option value="Instagram Auto-DM & Yorum">Instagram Auto-DM & Yorum (₺2.490 /ay)</option>
+              <option value="AI Akıllı E-Posta Asistanı">AI Akıllı E-Posta Asistanı (₺1.990 /ay)</option>
+              <option value="B2B Müşteri & E-Posta Bulucu">B2B Müşteri & E-Posta Bulucu (₺2.490 /tek seferlik)</option>
+              <option value="Market Stock Control Otomasyonu">Market Stock Control Otomasyonu (₺49.900 /tek seferlik)</option>
+              <option value="Özel / Kurumsal Terzi Usulü Otomasyon">Özel / Kurumsal Terzi Usulü Otomasyon</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="formMessage">Mesajınız / İşletme İhtiyacınız</label>
+            <textarea id="formMessage" class="form-textarea" placeholder="İşletmenizden ve otomatikleştirmek istediğiniz süreçlerden kısaca bahsedin..."></textarea>
+          </div>
+          <button type="submit" class="btn-form-submit">
+            Mesajı Gönder 🚀
+          </button>
+          <div id="formStatus" class="form-status-msg"></div>
+        </form>
+      </div>
+
     </div>
   </section>
 
@@ -952,6 +1009,9 @@
     <div class="container">
       <div class="footer-bottom">
         <p>&copy; 2026 Otomasyon Market. Tüm hakları saklıdır.</p>
+        <div class="footer-legal-links" style="margin-top:0.5rem;font-size:0.85rem;">
+          <a href="gizlilik-ve-kvkk.html" style="color:var(--color-text-muted);text-decoration:underline;">Gizlilik Politikası & KVKK Aydınlatma Metni</a>
+        </div>
       </div>
     </div>
   </footer>
@@ -1085,7 +1145,7 @@
     </div>
   </div>
 
-  <script src="app.js?v=20260825_01"></script>
+  <script src="app.js?v=20260825_02"></script>
 </body>
 
 </html>

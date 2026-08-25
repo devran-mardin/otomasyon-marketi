@@ -545,14 +545,27 @@ function initContactForm() {
   });
 }
 
-// ── 6. E-Posta Doğrudan Yönlendirme ──
+// ── 6. E-Posta Akıllı Yönlendirme (Masaüstü & Mobil Uyumlu) ──
 function initEmailModal() {
   const emailCard = document.getElementById("emailContactCard");
   if (!emailCard) return;
 
-  // Tıklanınca doğrudan alıcı platform@otomasyonmarketi.net olacak şekilde e-posta istemcisini açar
-  emailCard.addEventListener("click", () => {
-    // Doğrudan mailto yönlendirmesi çalışır
+  emailCard.addEventListener("click", (e) => {
+    e.preventDefault();
+
+    // E-posta adresini panoya kopyala
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText("platform@otomasyonmarketi.net").catch(() => {});
+    }
+
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      window.location.href = "mailto:platform@otomasyonmarketi.net?subject=Otomasyon%20Market%20Bilgi%20ve%20Teklif%20Talebi&body=Merhaba,%20otomasyon%20çözümleriniz%20hakkında%20bilgi%20almak%20istiyorum.";
+    } else {
+      // Masaüstünde doğrudan Gmail Web yeni e-posta oluşturma sekmesini açar
+      window.open("https://mail.google.com/mail/?view=cm&fs=1&to=platform@otomasyonmarketi.net&su=Otomasyon%20Market%20Bilgi%20ve%20Teklif%20Talebi&body=Merhaba,%20otomasyon%20çözümleriniz%20hakkında%20bilgi%20almak%20istiyorum.", "_blank");
+    }
   });
 }
 

@@ -545,28 +545,50 @@ function initContactForm() {
   });
 }
 
-// ── 6. E-Posta Akıllı Yönlendirme (Masaüstü & Mobil Uyumlu) ──
+// ── 6. E-Posta Servis Seçici Modal ──
 function initEmailModal() {
   const emailCard = document.getElementById("emailContactCard");
+  const emailModal = document.getElementById("emailProviderModal");
+  const closeModalBtn = document.getElementById("emailModalClose");
+
   if (!emailCard) return;
 
   emailCard.addEventListener("click", (e) => {
     e.preventDefault();
 
-    // E-posta adresini panoya kopyala
+    // E-posta adresini otomatik olarak panoya kopyala
     if (navigator.clipboard) {
       navigator.clipboard.writeText("platform@otomasyonmarketi.net").catch(() => {});
     }
 
-    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-    if (isMobile) {
-      window.location.href = "mailto:platform@otomasyonmarketi.net?subject=Otomasyon%20Market%20Bilgi%20ve%20Teklif%20Talebi&body=Merhaba,%20otomasyon%20çözümleriniz%20hakkında%20bilgi%20almak%20istiyorum.";
-    } else {
-      // Masaüstünde doğrudan Gmail Web yeni e-posta oluşturma sekmesini açar
-      window.open("https://mail.google.com/mail/?view=cm&fs=1&to=platform@otomasyonmarketi.net&su=Otomasyon%20Market%20Bilgi%20ve%20Teklif%20Talebi&body=Merhaba,%20otomasyon%20çözümleriniz%20hakkında%20bilgi%20almak%20istiyorum.", "_blank");
+    // Modalı ekranda göster
+    if (emailModal) {
+      emailModal.classList.add("active");
+      document.body.style.overflow = "hidden";
     }
   });
+
+  function closeModal() {
+    if (emailModal) {
+      emailModal.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  }
+
+  if (closeModalBtn) closeModalBtn.addEventListener("click", closeModal);
+
+  if (emailModal) {
+    emailModal.addEventListener("click", (e) => {
+      if (e.target === emailModal) closeModal();
+    });
+
+    const providerBtns = emailModal.querySelectorAll(".email-provider-btn");
+    providerBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        setTimeout(closeModal, 400);
+      });
+    });
+  }
 }
 
 // ── Init ──

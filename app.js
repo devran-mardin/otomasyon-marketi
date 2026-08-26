@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════
-   OTOMASYON MARKET — APP.JS
+   OTOMASYON AI — APP.JS
    Navbar, scroll animasyonları, aktif link takibi
    ═══════════════════════════════════════════════════ */
 

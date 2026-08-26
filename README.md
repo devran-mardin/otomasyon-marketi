@@ -1,4 +1,4 @@
-# 🚀 Otomasyon Market (otomasyonmarketi.net)
+# 🚀 OtomasyonAI (otomasyonmarketi.net)
 
 Yapay zeka destekli otomasyon çözümlerinin (WhatsApp, Instagram, Telegram, E-Posta, Lead Scraping ve Market Stok Takip) sergilendiği ve aylık/tek seferlik paketler halinde satışa sunulduğu profesyonel platform.
 

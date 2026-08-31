@@ -416,95 +416,7 @@ function initProductSearch() {
   }
 }
 
-// ── 4. Özel Paket Oluşturucu Modal ──
-function initCustomPackageBuilder() {
-  const modal = document.getElementById("customPackageModal");
-  const openBtn = document.getElementById("btnOpenCustomPkg");
-  const closeBtn = document.getElementById("pkgModalClose");
-  const modChecks = document.querySelectorAll(".pkg-mod-check");
 
-  const pkgSelectedCount = document.getElementById("pkgSelectedCount");
-  const pkgSelectedList = document.getElementById("pkgSelectedList");
-  const pkgOrigPrice = document.getElementById("pkgOrigPrice");
-  const pkgDiscount = document.getElementById("pkgDiscount");
-  const pkgTotalPrice = document.getElementById("pkgTotalPrice");
-  const pkgWaBtn = document.getElementById("pkgWaBtn");
-
-  if (!modal) return;
-
-  function updatePackageCalculation() {
-    let totalOrig = 0;
-    let selectedNames = [];
-
-    modChecks.forEach(check => {
-      if (check.checked) {
-        const price = parseInt(check.dataset.price);
-        totalOrig += price;
-        selectedNames.push(check.value);
-      }
-    });
-
-    const count = selectedNames.length;
-    // Eğer 2 veya daha fazla modül seçildiyse %20 indirim uygula
-    const discountRate = count >= 2 ? 0.20 : 0;
-    const discountAmount = Math.round(totalOrig * discountRate);
-    const finalPrice = totalOrig - discountAmount;
-
-    // UI Güncelleme
-    if (pkgSelectedCount) pkgSelectedCount.textContent = `${count} Modül`;
-
-    if (pkgSelectedList) {
-      pkgSelectedList.innerHTML = "";
-      if (count === 0) {
-        pkgSelectedList.innerHTML = `<li style="color:var(--color-text-muted);">Lütfen en az 1 modül seçin.</li>`;
-      } else {
-        selectedNames.forEach(name => {
-          const li = document.createElement("li");
-          li.textContent = `✓ ${name}`;
-          pkgSelectedList.appendChild(li);
-        });
-      }
-    }
-
-    if (pkgOrigPrice) pkgOrigPrice.textContent = `₺${totalOrig.toLocaleString("tr-TR")} /ay`;
-    if (pkgDiscount) pkgDiscount.textContent = discountRate > 0 ? `-₺${discountAmount.toLocaleString("tr-TR")}` : "₺0";
-    if (pkgTotalPrice) pkgTotalPrice.textContent = `₺${finalPrice.toLocaleString("tr-TR")} /ay`;
-
-    // WhatsApp Bağlantısı
-    const waText = encodeURIComponent(
-      `Merhaba, özel paket sihirbazınızdan teklif oluşturdum:\n` +
-      `Seçilen Modüller: ${selectedNames.join(", ")}\n` +
-      `Tahmini Fiyat: ₺${finalPrice.toLocaleString("tr-TR")} /ay (İlk 1 Ay Ücretsiz Kampanyası dahil)\n` +
-      `Detayları görüşebilir miyiz?`
-    );
-    if (pkgWaBtn) pkgWaBtn.href = `https://wa.me/905530551369?text=${waText}`;
-  }
-
-  if (openBtn) {
-    openBtn.addEventListener("click", () => {
-      modal.classList.add("active");
-      document.body.style.overflow = "hidden";
-      updatePackageCalculation();
-    });
-  }
-
-  function closeModal() {
-    modal.classList.remove("active");
-    document.body.style.overflow = "";
-  }
-
-  if (closeBtn) closeBtn.addEventListener("click", closeModal);
-
-  modal.addEventListener("click", (e) => {
-    if (e.target === modal) closeModal();
-  });
-
-  modChecks.forEach(check => {
-    check.addEventListener("change", updatePackageCalculation);
-  });
-
-  updatePackageCalculation();
-}
 
 // ── 5. Web İletişim Formu ──
 function initContactForm() {
@@ -602,7 +514,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initRoiCalculator();
   initChatSimulator();
   initProductSearch();
-  initCustomPackageBuilder();
+
   initContactForm();
   initEmailModal();
 });

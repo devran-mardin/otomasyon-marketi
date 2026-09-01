@@ -2623,8 +2623,188 @@ ul { list-style: none; }
   font-weight: 700;
 }
 
+/* ═══════════════ SEKTÖREL AI ASİSTANLARI (3 SÜTUN) ═══════════════ */
+.sector-ai-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.75rem;
+  margin-top: 2rem;
+  margin-bottom: 3.5rem;
+}
 
+.sector-card {
+  background: rgba(15, 23, 42, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius-lg, 16px);
+  padding: 2rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--transition-base, 0.3s ease), box-shadow var(--transition-base, 0.3s ease), border-color var(--transition-base, 0.3s ease);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
 
+.sector-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  transition: height var(--transition-fast, 0.2s ease);
+}
 
+.sector-card-emlak::before { background: linear-gradient(90deg, #38bdf8, #6366f1); }
+.sector-card-dental::before { background: linear-gradient(90deg, #10b981, #06b6d4); }
+.sector-card-beauty::before { background: linear-gradient(90deg, #ec4899, #f43f5e); }
 
+.sector-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(99, 102, 241, 0.35);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 30px rgba(99, 102, 241, 0.2);
+}
+
+.sector-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.sector-card-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md, 12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  flex-shrink: 0;
+}
+
+.sector-card-emlak .sector-card-icon {
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.sector-card-dental .sector-card-icon {
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.sector-card-beauty .sector-card-icon {
+  background: rgba(236, 72, 153, 0.15);
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+.sector-card-title-group h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0.25rem 0 0 0;
+}
+
+.sector-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.sector-badge-blue {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.3);
+}
+
+.sector-badge-green {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.sector-badge-pink {
+  background: rgba(236, 72, 153, 0.15);
+  color: #f472b6;
+  border: 1px solid rgba(236, 72, 153, 0.3);
+}
+
+.sector-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex-grow: 1;
+}
+
+.sector-features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  font-size: 0.93rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+.sector-features .check {
+  font-weight: 800;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.sector-card-emlak .check { color: #38bdf8; }
+.sector-card-dental .check { color: #34d399; }
+.sector-card-beauty .check { color: #f472b6; }
+
+.btn-sector-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.85rem 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-md, 10px);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 0.92rem;
+  text-decoration: none;
+  transition: all var(--transition-fast, 0.2s ease);
+  margin-top: auto;
+}
+
+.sector-card-emlak .btn-sector-cta:hover {
+  background: linear-gradient(135deg, #0284c7, #6366f1);
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+}
+
+.sector-card-dental .btn-sector-cta:hover {
+  background: linear-gradient(135deg, #059669, #0891b2);
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(5, 150, 105, 0.4);
+}
+
+.sector-card-beauty .btn-sector-cta:hover {
+  background: linear-gradient(135deg, #db2777, #e11d48);
+  border-color: transparent;
+  box-shadow: 0 4px 15px rgba(219, 39, 119, 0.4);
+}
+
+@media (max-width: 992px) {
+  .sector-ai-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
 

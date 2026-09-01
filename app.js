@@ -253,7 +253,7 @@ function initScrollReveal() {
   }, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
 
   document.querySelectorAll(
-    ".about-stat, .vision-card, .contact-card, .about-text, .product-card, .pricing-card, .faq-item, .problem-card"
+    ".about-stat, .vision-card, .contact-card, .about-text, .product-card, .faq-item, .problem-card, .sector-card"
   ).forEach(el => {
     el.classList.add("reveal");
     observer.observe(el);

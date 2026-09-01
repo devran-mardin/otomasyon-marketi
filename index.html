@@ -62,8 +62,7 @@
       <ul class="nav-links" id="navLinks">
         <li><a href="#anasayfa" class="nav-link active">Ana Sayfa</a></li>
         <li><a href="#otomasyonlar" class="nav-link">Otomasyonlar</a></li>
-        <li><a href="#tasarruf" class="nav-link">Tasarruf Hesabı</a></li>
-        <li><a href="#fiyatlandirma" class="nav-link">Fiyatlandırma</a></li>
+
         <li><a href="#sss" class="nav-link">SSS</a></li>
         <li><a href="#hakkimizda" class="nav-link">Hakkımızda</a></li>
         <li><a href="#iletisim" class="nav-link">İletişim</a></li>
@@ -643,152 +642,6 @@
   </section>
 
 
-  <!-- ═══════════════ İNTERAKTİF TASARRUF & ROI HESAPLAYICI ═══════════════ -->
-  <section class="section section-roi" id="tasarruf">
-    <div class="container">
-      <div class="section-header center">
-        <span class="section-badge">Zaman & Maliyet Analizi</span>
-        <h2>Otomasyon İşletmenize Ne Kadar Kazandırır?</h2>
-        <p>Aşağıdaki kaydırıcıları işletmenizin günlük hacmine göre ayarlayın, ayda kaç saat ve kaç ₺ tasarruf edeceğinizi görün.</p>
-      </div>
-
-      <div class="roi-calculator-card">
-        <div class="roi-inputs">
-          <!-- Input 1 -->
-          <div class="roi-field">
-            <div class="roi-field-header">
-              <label for="sliderMessages">Günde Gelen Müşteri Mesajı / Talebi</label>
-              <span class="roi-val-badge" id="valMessages">50 mesaj</span>
-            </div>
-            <input type="range" id="sliderMessages" min="10" max="500" step="5" value="50" class="roi-slider">
-          </div>
-
-          <!-- Input 2 -->
-          <div class="roi-field">
-            <div class="roi-field-header">
-              <label for="sliderTime">Mesaj Başı Harcanan Zaman (Dakika)</label>
-              <span class="roi-val-badge" id="valTime">4 dk</span>
-            </div>
-            <input type="range" id="sliderTime" min="1" max="15" step="1" value="4" class="roi-slider">
-          </div>
-
-          <!-- Input 3 -->
-          <div class="roi-field">
-            <div class="roi-field-header">
-              <label for="sliderWage">Saatlik Personel / Mesai Maliyeti (₺)</label>
-              <span class="roi-val-badge" id="valWage">₺200 / saat</span>
-            </div>
-            <input type="range" id="sliderWage" min="100" max="1000" step="25" value="200" class="roi-slider">
-          </div>
-        </div>
-
-        <div class="roi-results-box">
-          <div class="roi-result-item">
-            <span class="roi-res-icon">⏳</span>
-            <div class="roi-res-info">
-              <span class="roi-res-label">Aylık Tasarruf Edilen Zaman</span>
-              <span class="roi-res-value" id="resHours">100 Saat</span>
-            </div>
-          </div>
-
-          <div class="roi-result-item highlight">
-            <span class="roi-res-icon">💰</span>
-            <div class="roi-res-info">
-              <span class="roi-res-label">Aylık İş Gücü & Maliyet Tasarrufu</span>
-              <span class="roi-res-value" id="resSavings">₺20.000</span>
-            </div>
-          </div>
-
-          <div class="roi-result-item">
-            <span class="roi-res-icon">⚡</span>
-            <div class="roi-res-info">
-              <span class="roi-res-label">Tahmini Kaçırılmayan Ek Satış Kazancı</span>
-              <span class="roi-res-value" id="resRevenue">₺15.000+</span>
-            </div>
-          </div>
-
-          <div class="roi-cta-box">
-            <p class="roi-promo-note">🎁 <strong>1 Ay Ücretsiz Kampanyası</strong> ile ilk ay bu kazancı ₺0 maliyetle elde edin!</p>
-            <a href="#" id="roiWaBtn" class="btn-roi-cta" target="_blank" rel="noopener">
-              Bu Tasarrufu Ücretsiz Başlat 🚀
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ═══════════════ FİYATLANDIRMA ═══════════════ -->
-  <section class="section" id="fiyatlandirma">
-    <div class="container">
-      <div class="section-header">
-        <span class="section-badge">Abonelik Paketleri</span>
-        <h2>İhtiyacınıza Uygun Planı Seçin</h2>
-        <p>Gizli ücret yok, kurulum ücreti yok. İhtiyacınıza göre ayarlanabilir esnek paketler.</p>
-      </div>
-
-      <div class="pricing-grid">
-        <!-- Paket 1: Starter -->
-        <div class="pricing-card">
-          <div class="pricing-header">
-            <h3>Starter</h3>
-            <p>Küçük işletmeler ve girişimciler için tekil otomasyon çözümü.</p>
-            <div class="pricing-amount">₺2.490 <span>/ay</span></div>
-          </div>
-          <ul class="pricing-features">
-            <li><span class="check">✓</span> <strong>WhatsApp, Instagram veya E-Posta Kutusu Otomasyonlarından Herhangi Birisi</strong></li>
-            <li><span class="check">✓</span> Standart Bulut Sunucu Kurulumu</li>
-            <li><span class="check">✓</span> Mesai Saatleri İçi E-posta Desteği</li>
-            <li><span class="check">✓</span> Aylık 5.000 İşlem/Mesaj Kotası</li>
-            <li class="disabled"><span>✕</span> Özel API Entegrasyonu</li>
-            <li class="disabled"><span>✕</span> Öncelikli WhatsApp Destek Hattı</li>
-          </ul>
-          <a href="https://wa.me/905530551369?text=Merhaba,%20Starter%20paket%20hakkında%20bilgi%20almak%20istiyorum."
-            class="btn-pricing" target="_blank" rel="noopener">Starter İle Başla</a>
-        </div>
-
-        <!-- Paket 2: Pro (Popüler) -->
-        <div class="pricing-card pricing-popular">
-          <div class="pricing-ribbon">En Çok Tercih Edilen</div>
-          <div class="pricing-header">
-            <h3>Pro Business</h3>
-            <p>Büyüyen işletmeler ve e-ticaret markaları için tam otomasyon paketi.</p>
-            <div class="pricing-amount">₺5.490 <span>/ay</span></div>
-          </div>
-          <ul class="pricing-features">
-            <li><span class="check">✓</span> <strong>3 Adet</strong> İstenen Otomasyon Seçimi</li>
-            <li><span class="check">✓</span> Yüksek Hızlı 7/24 Kesintisiz Sunucu</li>
-            <li><span class="check">✓</span> <strong>7/24 Öncelikli WhatsApp Desteği</strong></li>
-            <li><span class="check">✓</span> Aylık 25.000 İşlem/Mesaj Kotası</li>
-            <li><span class="check">✓</span> Ücretsiz Sürüm Güncellemeleri</li>
-            <li><span class="check">✓</span> Özel CRM & Takvim Entegrasyonu</li>
-          </ul>
-          <a href="https://wa.me/905530551369?text=Merhaba,%20Pro%20Business%20paketi%20satın%20almak%20istiyorum."
-            class="btn-pricing btn-pricing-popular" target="_blank" rel="noopener">Pro Paketini Seç</a>
-        </div>
-
-        <!-- Paket 3: Enterprise -->
-        <div class="pricing-card">
-          <div class="pricing-header">
-            <h3>Enterprise</h3>
-            <p>Özel süreçleri olan kurumsal markalar için terzi usulü otomasyon mimarisi.</p>
-            <div class="pricing-amount">Özel Teklif</div>
-          </div>
-          <ul class="pricing-features">
-            <li><span class="check">✓</span> <strong>Sınırsız / Özel</strong> Otomasyon Geliştirme</li>
-            <li><span class="check">✓</span> Size Özel Dedicated Sunucu Altyapısı</li>
-            <li><span class="check">✓</span> Birebir Teknik Mimar Desteği</li>
-            <li><span class="check">✓</span> Sınırsız İşlem & Veri Akışı</li>
-            <li><span class="check">✓</span> ERP / Özel Yazılım Entegrasyonu</li>
-            <li><span class="check">✓</span> SLA & Güvenlik Garantisi</li>
-          </ul>
-          <a href="https://wa.me/905530551369?text=Merhaba,%20Enterprise%20özel%20otomasyon%20teklifi%20almak%20istiyorum."
-            class="btn-pricing" target="_blank" rel="noopener">Bizimle İletişime Geçin</a>
-        </div>
-      </div>
-
-    </div>
-  </section>
 
   <!-- ═══════════════ SSS (SIKÇA SORULAN SORULAR) ═══════════════ -->
   <section class="section section-alt" id="sss">
@@ -1045,18 +898,6 @@
         <p>Yapay zeka destekli otomasyon çözümleri ile işletmenizi geleceğe taşıyın.</p>
       </div>
 
-      <div class="footer-location-box">
-        <div class="location-icon">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-            <circle cx="12" cy="10" r="3"></circle>
-          </svg>
-        </div>
-        <div class="location-text">
-          <span class="location-title">Merkezimiz</span>
-          <span class="location-city">Antalya, Türkiye</span>
-        </div>
-      </div>
     </div>
     <div class="container">
       <div class="footer-bottom">

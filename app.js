@@ -260,56 +260,7 @@ function initScrollReveal() {
   });
 }
 
-// ── 1. İnteraktif Tasarruf & ROI Hesaplayıcı ──
-function initRoiCalculator() {
-  const sliderMessages = document.getElementById("sliderMessages");
-  const sliderTime = document.getElementById("sliderTime");
-  const sliderWage = document.getElementById("sliderWage");
 
-  const valMessages = document.getElementById("valMessages");
-  const valTime = document.getElementById("valTime");
-  const valWage = document.getElementById("valWage");
-
-  const resHours = document.getElementById("resHours");
-  const resSavings = document.getElementById("resSavings");
-  const resRevenue = document.getElementById("resRevenue");
-  const roiWaBtn = document.getElementById("roiWaBtn");
-
-  if (!sliderMessages || !sliderTime || !sliderWage) return;
-
-  function calculateROI() {
-    const msgs = parseInt(sliderMessages.value);
-    const timePerMsg = parseInt(sliderTime.value);
-    const wage = parseInt(sliderWage.value);
-
-    // Günlük & Aylık Hesaplamalar (Ayda 25 iş günü varsayımı)
-    const dailyHours = (msgs * timePerMsg) / 60;
-    const monthlyHours = Math.round(dailyHours * 25);
-    const monthlySavings = Math.round(monthlyHours * wage);
-    const monthlyRevenue = Math.round(monthlySavings * 0.75);
-
-    // UI Güncelleme
-    valMessages.textContent = `${msgs} mesaj`;
-    valTime.textContent = `${timePerMsg} dk`;
-    valWage.textContent = `₺${wage.toLocaleString("tr-TR")} / saat`;
-
-    resHours.textContent = `${monthlyHours.toLocaleString("tr-TR")} Saat`;
-    resSavings.textContent = `₺${monthlySavings.toLocaleString("tr-TR")}`;
-    resRevenue.textContent = `₺${monthlyRevenue.toLocaleString("tr-TR")}+`;
-
-    // WhatsApp Linki Oluştur
-    const waText = encodeURIComponent(
-      `Merhaba, web sitenizdeki Tasarruf Hesaplayıcıyı kullandım. Günde ${msgs} mesaj ve saatlik ₺${wage} maliyet ile ayda ${monthlyHours} saat ve ₺${monthlySavings.toLocaleString("tr-TR")} tasarruf hesabı aldım. 1 ay ücretsiz denemek istiyorum.`
-    );
-    roiWaBtn.href = `https://wa.me/905530551369?text=${waText}`;
-  }
-
-  [sliderMessages, sliderTime, sliderWage].forEach(input => {
-    input.addEventListener("input", calculateROI);
-  });
-
-  calculateROI();
-}
 
 // ── 2. Canlı Hero Chat Simülatörü ──
 function initChatSimulator() {
@@ -511,7 +462,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initCategoryFilters();
   initProductModal();
   initFAQAccordion();
-  initRoiCalculator();
+
   initChatSimulator();
   initProductSearch();
 

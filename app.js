@@ -272,11 +272,11 @@ function initChatSimulator() {
   const scenarios = {
     fiyat: {
       user: "Otomasyon fiyatları ne kadar?",
-      bot: "Aylık paketlerimiz ₺990'den başlamaktadır. Üstelik şu an kampanyamız kapsamında tüm paketlerimiz 1 ay boyunca ücretsizdir! 🎁"
+      bot: "Aylık otomasyon paketlerimiz ₺1.890'dan başlamaktadır. İhtiyacınıza göre WhatsApp, Telefon, Instagram ve E-Posta çözümlerimizden dilediğinizi seçebilirsiniz. 🚀"
     },
-    randevu: {
-      user: "Takvimimle otomatik randevu oluşturabilir miyim?",
-      bot: "Evet! Google Takvim entegrasyonu sayesinde müşterileriniz WhatsApp üzerinden boş saatlerinizi görüp anında randevu oluşturabilir."
+    telefon: {
+      user: "Telefon aramalarını yapay zeka karşılayabilir mi?",
+      bot: "Evet! AI Sesli Telefon Asistanımız 7/24 gelen aramaları doğal Türkçe ses ile yanıtlar, bilgi verir ve arama özetlerini iletir. 📞"
     },
     stok: {
       user: "Stok azaldığında WhatsApp bildirimi gönderiyor mu?",

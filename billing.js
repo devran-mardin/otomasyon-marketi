@@ -789,7 +789,7 @@
       }
     },
 
-    // Navbar'daki Giriş/Hesap Alanını Güncelle
+    // Navbar'daki Giriş/Hesap Alanını Güncelle (İki Ayrı Buton: Giriş ve Kayıt)
     updateNavAuth() {
       const navInner = document.querySelector('.nav-inner');
       if (!navInner) return;
@@ -811,30 +811,58 @@
       const user = AuthService.getCurrentUser();
 
       if (user) {
-        // Kullanıcı giriş yapmış
+        // Kullanıcı giriş yapmış: Paneline doğrudan erişim + Çıkış
         authContainer.innerHTML = `
-          <button class="btn-nav-dashboard" id="btnOpenDashboard">
+          <button class="btn-nav-dashboard" id="btnNavDashboard" title="İşletme Profilim & Yönetim Paneli">
             <span class="biz-icon">🏢</span>
             <span class="biz-title">${user.businessName}</span>
             <span class="dash-arrow">▾</span>
           </button>
-        `;
-
-        const btnDash = document.getElementById('btnOpenDashboard');
-        if (btnDash) {
-          btnDash.addEventListener('click', () => this.openCustomerDashboard());
-        }
-      } else {
-        // Kullanıcı giriş yapmamış
-        authContainer.innerHTML = `
-          <button class="btn-nav-login" id="btnOpenAuth">
-            <span>İşletme Girişi / Kayıt</span>
+          <button class="btn-nav-logout-icon" id="btnNavLogout" title="Oturumu Kapat">
+            Çıkış
           </button>
         `;
 
-        const btnOpenAuth = document.getElementById('btnOpenAuth');
-        if (btnOpenAuth) {
-          btnOpenAuth.addEventListener('click', () => this.openAuthModal('register'));
+        const btnDash = document.getElementById('btnNavDashboard');
+        if (btnDash) {
+          btnDash.addEventListener('click', () => this.openCustomerDashboard());
+        }
+
+        const btnLogout = document.getElementById('btnNavLogout');
+        if (btnLogout) {
+          btnLogout.addEventListener('click', () => AuthService.logout());
+        }
+      } else {
+        // Kullanıcı henüz giriş yapmamış: İki Ayrı Buton
+        authContainer.innerHTML = `
+          <button class="btn-nav-login" id="btnNavLogin" title="Kayıtlı işletme hesabınıza giriş yapın veya panelinize erişin">
+            <span>İşletme Girişi</span>
+          </button>
+          <button class="btn-nav-register" id="btnNavRegister" title="Yeni işletme hesabı oluşturun">
+            <span>Kayıt Ol</span>
+          </button>
+        `;
+
+        const btnLogin = document.getElementById('btnNavLogin');
+        if (btnLogin) {
+          btnLogin.addEventListener('click', () => {
+            const activeUser = AuthService.getCurrentUser();
+            if (activeUser) {
+              // Eğer önceden kaydı ve açık oturumu varsa direkt işletme profiline yönlendir
+              this.openCustomerDashboard();
+            } else {
+              // Değilse doğrudan 'İşletme Girişi' sekmesini aç
+              this.openAuthModal('login');
+            }
+          });
+        }
+
+        const btnRegister = document.getElementById('btnNavRegister');
+        if (btnRegister) {
+          btnRegister.addEventListener('click', () => {
+            // İlk defa hesap açacaklar direkt kayda basıp kayıt oluştursun
+            this.openAuthModal('register');
+          });
         }
       }
     },

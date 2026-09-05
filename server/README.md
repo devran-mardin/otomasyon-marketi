@@ -47,6 +47,11 @@ kendi webhook secret'ı ve kendi Dashboard adresi vardır:
 
 ## Yerelde Çalıştırma (Sandbox)
 
+> ⚠️ **`.env` ≠ `.env.example`.** Gerçek anahtarlar SADECE `.env` dosyasına yazılır
+> (git'e gitmez, `.gitignore` korur). `.env.example` bir ŞABLONDUR, git'e gider —
+> oraya gerçek bir anahtar yapıştırırsanız GitHub'a yollanır. İkisi birbirine çok
+> benziyor, dosya adını iki kere kontrol edin.
+
 ```bash
 cd server
 npm install
@@ -103,6 +108,40 @@ sunucu tanımadığı bir ürün için asla ödeme oturumu açmaz.
 Paddle Dashboard'da ürün/fiyat tanımlamanıza gerek YOKTUR — her satır için
 sunucu, isteğe özel ("non-catalog") bir fiyat nesnesi oluşturur; bu sayede
 özel paket sihirbazındaki dinamik %20 indirim de sorunsuz uygulanır.
+
+## Kurulumda Sık Çıkan Paddle Hataları
+
+Sandbox'ta uçtan uca test ederken çıkan ve dokümanlarında net yazmayan 3 zorunluluk:
+
+1. **"Must validate one and only one schema (oneOf)"** — non-catalog `price`
+   nesnesine bir `product: { name, tax_category }` objesi eklemeden Paddle
+   transaction'ı reddeder. `server.js` bunu zaten gönderiyor (`tax_category: 'saas'`),
+   ama Paddle'ın API şemasını elle değiştirirseniz bunu unutmayın.
+2. **"no default payment link has been set for this account"** — her Paddle
+   hesabı (sandbox dahil) Dashboard'da **Checkout → Checkout settings →
+   Default Payment Link** alanına bir URL girmeden hiç transaction oluşturamaz.
+   Sandbox ve production hesaplarının HER İKİSİNDE de ayrı ayrı ayarlanmalı.
+3. **"forbidden: not authorized to create|read transaction"** — API key
+   oluştururken Transactions için okuma+yazma izni seçili değilse bu hatayı
+   alırsınız. Developer Tools > Authentication > API keys'te izinleri kontrol edin.
+
+## Bilinen Eksik: Panel (Dashboard) Gerçek Veriye Bağlı Değil
+
+`billing.js` içindeki İşletme Paneli'nin "Aktif Paketlerim & Abonelikler" /
+"Kartlar" / "Faturalar" sekmeleri hâlâ eski, tamamen yerel (localStorage)
+simülasyon sisteminden (`SubscriptionEngine`) besleniyor. Gerçek Paddle ödemesi
+başarıyla tamamlansa bile bu sekmeler güncellenmiyor — panel boş görünür.
+
+Gerçek abonelik durumu şu an sadece **"Faturalama Portalım (Paddle)"**
+butonundaki Customer Portal'da doğru şekilde görünür.
+
+**Bilerek ertelendi** (2026-09-05): Panel'i sahte veriyle doldurmak yerine
+(örn. "İptal Et" butonu gerçek Paddle aboneliğini değil sadece yerel kaydı
+iptal eder — müşteriyi yanıltır) production Paddle hesabı onaylanınca gerçek
+veriye bağlamak üzere bırakıldı. Yapılacaklar: backend'e müşterinin gerçek
+Paddle aboneliklerini/faturalarını dönen bir endpoint eklemek, panel'i o
+veriyle doldurmak, "İptal Et"i gerçek Paddle API'sine (ya da Customer
+Portal'ın cancel linkine) bağlamak.
 
 ## Önerilen Sonraki Adım
 

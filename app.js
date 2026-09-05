@@ -3,6 +3,13 @@
    Navbar, scroll animasyonları, aktif link takibi
    ═══════════════════════════════════════════════════ */
 
+// Kullanıcı girdisini innerHTML'e basmadan önce kaçış karakterlerine çevirir (XSS koruması)
+function escapeHtml(str) {
+  return String(str ?? "").replace(/[&<>"']/g, (ch) => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+  }[ch]));
+}
+
 // ── DOM ──
 const navbar = document.getElementById("navbar");
 const hamburger = document.getElementById("hamburger");
@@ -174,6 +181,7 @@ function initProductModal() {
       modalPlatform.textContent = platform;
       modalPrice.textContent = price;
       modalDesc.textContent = desc;
+      modal.dataset.productId = btn.dataset.productId || "";
 
       // Özellik listesini doldur
       modalFeatures.innerHTML = "";
@@ -396,7 +404,7 @@ function initContactForm() {
     const waUrl = `https://wa.me/905530551369?text=${waText}`;
 
     statusMsg.className = "form-status-msg success";
-    statusMsg.innerHTML = `✓ Teşekkürler ${name}! Mesajınız alındı. WhatsApp üzerinden bilgi aktarmak üzere yönlendiriliyorsunuz...`;
+    statusMsg.innerHTML = `✓ Teşekkürler ${escapeHtml(name)}! Mesajınız alındı. WhatsApp üzerinden bilgi aktarmak üzere yönlendiriliyorsunuz...`;
 
     setTimeout(() => {
       window.open(waUrl, "_blank");

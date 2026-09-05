@@ -16,5 +16,20 @@ Yapay zeka destekli otomasyon çözümlerinin (WhatsApp, Instagram, Telegram, E-
 - 📦 **Özel Paket Oluşturucu Sihirbazı:** Müşterilerin modül seçerek %20 indirimli paket oluşturmasını sağlayan modal.
 - 🔍 **Canlı Katalog Arama & Filtreleme:** Kategoriye ve kelimeye göre anlık arama yapan ürün kataloğu.
 - 📩 **Web İletişim Formu & WhatsApp Entegrasyonu:** Müşteri mesajlarını WhatsApp hattına otomatik taşıyan sistem.
+- 💳 **Gerçek Paddle Ödeme Altyapısı:** Satın alma/deneme butonları `server/` klasöründeki backend
+  üzerinden gerçek bir Paddle Transaction oluşturup Paddle.js overlay checkout'unu açar; kart
+  bilgisi bu sitede hiç tutulmaz, KDV/vergiyi Merchant of Record olarak Paddle hesaplar.
+  Detaylar için `server/README.md`.
 - ⚖️ **Yasal Uyum:** KVKK, Gizlilik Politikası ve 1 Ay Ücretsiz Cayma Hakkı Şartları (`gizlilik-ve-kvkk.html`).
 - 🚫 **Özel 404 Sayfası:** Şık hata yönetimi (`404.html`).
+
+## 💳 Ödeme Altyapısı
+
+`billing.js` artık kart bilgisi toplamaz veya sahte bir ödeme akışı çalıştırmaz.
+"Satın Al / 1 Ay Ücretsiz Başla" butonları, `server/` klasöründeki Node/Express backend'ini
+çağırıp bir Paddle Transaction oluşturur ve kullanıcıya Paddle.js'in kendi güvenli overlay
+checkout'unu (site üzerinde açılan ödeme penceresi) açar. Paddle bir Merchant of Record
+olduğu için KDV/vergi beyanını da kendisi üstlenir.
+Fiyatlar yalnızca backend'deki `server/catalog.js` içinde tanımlıdır — istemci tarafından
+gönderilen hiçbir fiyat değeri güvenilmez. Backend'i kurmadan bu butonlar çalışmaz; kurulum
+ve Railway'e deploy adımları için `server/README.md`'ye bakın.

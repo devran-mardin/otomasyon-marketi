@@ -1,0 +1,25 @@
+# ==========================================
+# 🔐 HASSAS DOSYALAR — ASLA COMMIT ETMEYİN
+# ==========================================
+.env
+.env.*
+!.env.example
+credentials.env
+config.env
+*.env
+
+# ==========================================
+# Backend (server/) — Node bağımlılıkları
+# ==========================================
+server/node_modules/
+node_modules/
+npm-debug.log*
+
+# ==========================================
+# Sistem / editör dosyaları
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+*.log

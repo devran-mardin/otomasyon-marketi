@@ -1,12 +1,29 @@
 /* ═══════════════════════════════════════════════════
    OTOMASYON AI — BILLING & SUBSCRIPTION ENGINE
-   1. İşletme Hesabı (B2B Auth & Oturum)
-   2. Temel Ödeme Altyapısı (Kart Doğrulama & 3D Secure)
-   3. 30 Gün Ücretsiz Deneme ve 30 Günlük Periyodik Tahsilat
+   1. İşletme Hesabı (B2B Auth & Oturum) — yerel/kozmetik, ödeme gerçeğine karışmaz
+   2. Ödeme: gerçek Paddle Transaction + Paddle.js overlay checkout (server/ backend'i üzerinden)
+   3. Faturalama Portalı: abonelik yönetimi Paddle Customer Portal'da yapılır
    ═══════════════════════════════════════════════════ */
 
 (function () {
   'use strict';
+
+  // Ödeme backend'inin adresi. Yerelde test ederken http://localhost:3000 yapın,
+  // canlıda Railway'e deploy ettiğiniz backend'in gerçek adresiyle değiştirin.
+  const API_BASE = 'https://api.otomasyonmarketi.net';
+
+  // Paddle.js client-side token — GİZLİ DEĞİLDİR, tarayıcıda görünmesi güvenlidir
+  // (asıl gizli anahtar server/.env içindeki PADDLE_API_KEY'dir, buraya ASLA konmaz).
+  // Paddle Dashboard > Developer Tools > Authentication'dan alın.
+  // "test_..." ile başlıyorsa otomatik sandbox'a geçilir, "live_..." ise production'dır.
+  const PADDLE_CLIENT_TOKEN = 'test_...';
+
+  // Kullanıcı girdisini innerHTML'e basmadan önce kaçış karakterlerine çevirir (XSS koruması)
+  function escapeHtml(str) {
+    return String(str ?? '').replace(/[&<>"']/g, (ch) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+  }
 
   // ── 1. Depolama & Veri Modelleri (Storage Keys) ──
   const STORAGE_KEYS = {
@@ -14,7 +31,7 @@
     SESSION: 'otomasyon_active_session',
     SUBSCRIPTIONS: 'otomasyon_subscriptions',
     TRANSACTIONS: 'otomasyon_transactions',
-    SAVED_CARDS: 'otomasyon_saved_cards'
+    PADDLE_CUSTOMER: 'otomasyon_paddle_customer'
   };
 
   // Güvenli yerel veri alıcı & kaydedici
@@ -132,108 +149,12 @@
     }
   };
 
-  // ── 3. Kart & Ödeme Altyapısı (PaymentService) ──
-  const PaymentService = {
-    // Kart tipini tespit et
-    detectCardBrand(number) {
-      const clean = number.replace(/\D/g, '');
-      if (/^4/.test(clean)) return 'visa';
-      if (/^5[1-5]/.test(clean) || /^2[2-7]/.test(clean)) return 'mastercard';
-      if (/^9792/.test(clean) || /^65/.test(clean)) return 'troy';
-      if (/^3[47]/.test(clean)) return 'amex';
-      return 'generic';
-    },
-
-    // Luhn Algoritması ile Kart Numarası Doğrulama
-    validateCardNumber(number) {
-      const clean = number.replace(/\D/g, '');
-      if (clean.length < 13 || clean.length > 19) return false;
-
-      let sum = 0;
-      let shouldDouble = false;
-      for (let i = clean.length - 1; i >= 0; i--) {
-        let digit = parseInt(clean.charAt(i), 10);
-        if (shouldDouble) {
-          digit *= 2;
-          if (digit > 9) digit -= 9;
-        }
-        sum += digit;
-        shouldDouble = !shouldDouble;
-      }
-      return sum % 10 === 0;
-    },
-
-    // Son Kullanma Tarihi Doğrulama (MM/YY)
-    validateExpiry(expiry) {
-      const parts = expiry.split('/');
-      if (parts.length !== 2) return false;
-      const month = parseInt(parts[0].trim(), 10);
-      const year = parseInt('20' + parts[1].trim(), 10);
-
-      if (isNaN(month) || isNaN(year) || month < 1 || month > 12) return false;
-
-      const now = new Date();
-      const currentYear = now.getFullYear();
-      const currentMonth = now.getMonth() + 1;
-
-      if (year < currentYear) return false;
-      if (year === currentYear && month < currentMonth) return false;
-      if (year > currentYear + 20) return false;
-
-      return true;
-    },
-
-    // CVV Doğrulama
-    validateCVV(cvv, cardBrand = 'generic') {
-      const clean = cvv.replace(/\D/g, '');
-      if (cardBrand === 'amex') return clean.length === 4;
-      return clean.length === 3;
-    },
-
-    // Kartı maskele (**** **** **** 1234)
-    maskCardNumber(number) {
-      const clean = number.replace(/\D/g, '');
-      const last4 = clean.slice(-4);
-      return `•••• •••• •••• ${last4}`;
-    },
-
-    // Kart Kaydetme
-    saveCard(businessId, cardData) {
-      const cards = DB.get(STORAGE_KEYS.SAVED_CARDS, []);
-      const masked = this.maskCardNumber(cardData.number);
-      const brand = this.detectCardBrand(cardData.number);
-
-      // Mevcut aynı kart var mı kontrol et
-      const existing = cards.find(c => c.businessId === businessId && c.masked === masked);
-      if (existing) {
-        existing.holder = cardData.holder;
-        existing.expiry = cardData.expiry;
-        existing.updatedAt = new Date().toISOString();
-        DB.set(STORAGE_KEYS.SAVED_CARDS, cards);
-        return existing;
-      }
-
-      const newCard = {
-        id: 'card_' + Date.now(),
-        businessId: businessId,
-        holder: cardData.holder.toUpperCase(),
-        masked: masked,
-        brand: brand,
-        expiry: cardData.expiry,
-        isDefault: true,
-        createdAt: new Date().toISOString()
-      };
-
-      cards.push(newCard);
-      DB.set(STORAGE_KEYS.SAVED_CARDS, cards);
-      return newCard;
-    },
-
-    getCards(businessId) {
-      const cards = DB.get(STORAGE_KEYS.SAVED_CARDS, []);
-      return cards.filter(c => c.businessId === businessId);
-    }
-  };
+  // ── 3. Kart & Ödeme Altyapısı — KALDIRILDI ──
+  // Önceden burada kart numarası/CVV/SKT toplayıp Luhn ile "doğrulayan" ve
+  // localStorage'a maskeli kart kaydeden bir PaymentService vardı. Kart verisi
+  // artık hiçbir zaman bu siteye uğramıyor: ödeme ve kart saklama tamamen
+  // Paddle overlay checkout / Paddle Customer Portal üzerinden yürüyor (bkz.
+  // UIManager içindeki handleCheckoutSubmit ve openBillingPortal).
 
   // ── 4. 30 Gün Ücretsiz Deneme & Abonelik Motoru (SubscriptionEngine) ──
   const SubscriptionEngine = {
@@ -415,6 +336,48 @@
       this.bindEvents();
       this.updateNavAuth();
       SubscriptionEngine.checkAndProcessRecurringBilling();
+      this.initPaddle();
+    },
+
+    // Paddle.js'i başlatır ve checkout olaylarını (tamamlandı/kapatıldı) dinler.
+    // Paddle overlay bir sayfa yönlendirmesi YAPMAZ — ödeme aynı sayfa üzerinde
+    // açılan bir pencerede tamamlanır, bu yüzden Stripe'takine benzer bir
+    // "?checkout=success" URL yakalama mantığına gerek yoktur.
+    initPaddle() {
+      if (typeof Paddle === 'undefined') {
+        console.warn('Paddle.js yüklenemedi — ödeme butonları şu an çalışmayacak.');
+        return;
+      }
+      if (PADDLE_CLIENT_TOKEN.startsWith('test_')) {
+        Paddle.Environment.set('sandbox');
+      }
+      Paddle.Initialize({
+        token: PADDLE_CLIENT_TOKEN,
+        eventCallback: (event) => this.handlePaddleEvent(event)
+      });
+    },
+
+    // Paddle.js overlay'inden gelen olayları işler.
+    async handlePaddleEvent(event) {
+      if (!event || !event.name) return;
+
+      if (event.name === 'checkout.completed') {
+        const transactionId = event.data?.transaction_id;
+        showToast('🎉 Ödemeniz alındı! "Panelim" üzerinden faturalama portalına ulaşabilirsiniz.', 'success');
+
+        if (transactionId) {
+          try {
+            const res = await fetch(`${API_BASE}/api/transaction/${encodeURIComponent(transactionId)}`);
+            const data = await res.json();
+            if (res.ok && data.customerId) {
+              DB.set(STORAGE_KEYS.PADDLE_CUSTOMER, { customerId: data.customerId });
+            }
+          } catch (err) {
+            console.error('[paddle-checkout-result]', err);
+          }
+        }
+      }
+      // 'checkout.closed' için özel bir işlem gerekmiyor — kullanıcı vazgeçmiş demektir.
     },
 
     // Modalları sayfaya enjekte et
@@ -573,59 +536,20 @@
                   <div class="card-brand-logos">
                     <span class="brand-badge visa">VISA</span>
                     <span class="brand-badge mastercard">Mastercard</span>
-                    <span class="brand-badge troy">TROY</span>
+                    <span class="brand-badge amex">AMEX</span>
+                    <span class="brand-badge applepay">Pay</span>
+                    <span class="brand-badge gpay">G Pay</span>
+                    <span class="brand-badge paypal">PayPal</span>
+                    <span class="brand-badge paddle-pill">Paddle</span>
                   </div>
                 </div>
 
-                <!-- Canlı Kredi Kartı Görseli (Live Interactive Card) -->
-                <div class="interactive-card-wrapper">
-                  <div class="credit-card-preview" id="creditCardPreview">
-                    <div class="card-chip"></div>
-                    <div class="card-contactless">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M8.5 10a4 4 0 0 1 0 4M12 7a8 8 0 0 1 0 10M15.5 4a12 12 0 0 1 0 16" />
-                      </svg>
-                    </div>
-                    <div class="card-logo-display" id="cardLogoDisplay">CARD</div>
-                    <div class="card-number-display" id="cardNumberDisplay">•••• •••• •••• ••••</div>
-                    <div class="card-footer-display">
-                      <div class="card-holder-info">
-                        <small>KART SAHİBİ</small>
-                        <span id="cardHolderDisplay">AD SOYAD</span>
-                      </div>
-                      <div class="card-expiry-info">
-                        <small>SKT</small>
-                        <span id="cardExpiryDisplay">AA/YY</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <p class="checkout-paddle-note">
+                  Kart bilgileriniz bu sitede tutulmaz. "Devam Et" dediğinizde Paddle'ın kendi güvenli ödeme
+                  penceresi açılır, işlem orada 3D Secure ile tamamlanır.
+                </p>
 
                 <form id="checkoutPaymentForm">
-                  <div class="form-group">
-                    <label>Kart Üzerindeki İsim *</label>
-                    <input type="text" id="cardHolderInput" class="form-input" placeholder="Örn: AHMET YILMAZ" required>
-                  </div>
-
-                  <div class="form-group">
-                    <label>Kart Numarası *</label>
-                    <div class="input-with-icon">
-                      <input type="text" id="cardNumberInput" class="form-input" placeholder="•••• •••• •••• ••••" maxlength="19" required>
-                      <span class="input-card-type" id="inputCardType">💳</span>
-                    </div>
-                  </div>
-
-                  <div class="form-row-2">
-                    <div class="form-group">
-                      <label>Son Kullanma (AA/YY) *</label>
-                      <input type="text" id="cardExpiryInput" class="form-input" placeholder="MM/YY" maxlength="5" required>
-                    </div>
-                    <div class="form-group">
-                      <label>CVV / Güvenlik Kodu *</label>
-                      <input type="password" id="cardCvvInput" class="form-input" placeholder="•••" maxlength="4" required>
-                    </div>
-                  </div>
-
                   <!-- Fatura Bilgileri Toggle -->
                   <div class="billing-details-accordion">
                     <button type="button" class="btn-toggle-billing" id="toggleBillingDetailsBtn">
@@ -635,21 +559,21 @@
                     <div class="billing-details-content" id="billingDetailsContent">
                       <div class="form-group">
                         <label>Fatura Şirket Unvanı</label>
-                        <input type="text" id="invoiceBizName" class="form-input" placeholder="Şirket Tam Unvanı">
+                        <input type="text" id="invoiceBizName" class="form-input" placeholder="Şirket Tam Unvanı" maxlength="200">
                       </div>
                       <div class="form-row-2">
                         <div class="form-group">
                           <label>Vergi Dairesi & No / TC</label>
-                          <input type="text" id="invoiceTaxNo" class="form-input" placeholder="Vergi No / TC Kimlik">
+                          <input type="text" id="invoiceTaxNo" class="form-input" placeholder="Vergi No / TC Kimlik" maxlength="50">
                         </div>
                         <div class="form-group">
                           <label>İl / İlçe</label>
-                          <input type="text" id="invoiceCity" class="form-input" placeholder="İstanbul / Kadıköy">
+                          <input type="text" id="invoiceCity" class="form-input" placeholder="İstanbul / Kadıköy" maxlength="100">
                         </div>
                       </div>
                       <div class="form-group">
                         <label>Fatura Adresi</label>
-                        <input type="text" id="invoiceAddress" class="form-input" placeholder="Şirket açık adresi...">
+                        <input type="text" id="invoiceAddress" class="form-input" placeholder="Şirket açık adresi..." maxlength="300">
                       </div>
                     </div>
                   </div>
@@ -664,7 +588,7 @@
                   </div>
 
                   <button type="submit" class="btn-primary-glow btn-block" id="btnSubmitPayment">
-                    <span>🛡️ 3D Secure ile 30 Gün Ücretsiz Başlat (₺0)</span>
+                    <span>🔒 Paddle ile Güvenli Ödemeye Geç</span>
                   </button>
                 </form>
               </div>
@@ -675,53 +599,10 @@
         document.body.insertAdjacentHTML('beforeend', checkoutModalHtml);
       }
 
-      // 3. 3D Secure Onay Simülasyon Modalı
-      if (!document.getElementById('threeDSecureModal')) {
-        const threeDSModalHtml = `
-        <div class="modal-overlay" id="threeDSecureModal">
-          <div class="modal-card three-d-card">
-            <div class="three-d-header">
-              <div class="bank-brand">
-                <span class="bank-logo-icon">🏛️</span>
-                <strong>Banka Güvenlik Onayı (3D Secure)</strong>
-              </div>
-              <div class="pci-badge">PCI-DSS Level 1</div>
-            </div>
-
-            <div class="three-d-body">
-              <p class="three-d-desc">
-                İşletmeniz adına başlatılan <strong>30 Günlük Ücretsiz Deneme Aboneliği</strong> kart doğrulaması için telefonunuza doğrulama kodu gönderilmiştir.
-              </p>
-
-              <div class="three-d-info-table">
-                <div class="row"><span>İşyeri:</span> <strong>OtomasyonAI Teknoloji A.Ş.</strong></div>
-                <div class="row"><span>Çekilecek Tutar:</span> <strong class="text-free">₺0.00 (Ücretsiz Deneme Provizyonu)</strong></div>
-                <div class="row"><span>Kart:</span> <strong id="threeDCardMasked">•••• •••• •••• 4242</strong></div>
-                <div class="row"><span>İşlem Türü:</span> <strong>Kart Saklama & Abonelik Kaydı</strong></div>
-              </div>
-
-              <form id="threeDSecureForm">
-                <div class="form-group">
-                  <label>SMS Doğrulama Kodu</label>
-                  <div class="sms-input-row">
-                    <input type="text" id="smsCodeInput" class="form-input sms-input" placeholder="123456" maxlength="6" value="584921" required>
-                    <button type="button" class="btn-sms-resend" id="btnResendSms">Tekrar Gönder (59s)</button>
-                  </div>
-                  <small style="color:var(--color-text-muted);font-size:0.8rem;margin-top:4px;display:block;">
-                    * Test ortamında kod otomatik doldurulmuştur. "Onayla" butonuna basınız.
-                  </small>
-                </div>
-
-                <div class="three-d-actions">
-                  <button type="button" class="btn-secondary" id="btnCancel3D">İptal</button>
-                  <button type="submit" class="btn-primary-glow" id="btnConfirm3D">Doğrula ve Aboneliği Başlat ➔</button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>`;
-        document.body.insertAdjacentHTML('beforeend', threeDSModalHtml);
-      }
+      // 3. 3D Secure Onay Simülasyonu — KALDIRILDI.
+      // Kart doğrulama/3D Secure artık gerçek: Paddle'ın kendi barındırdığı
+      // overlay checkout penceresinde gerçekleşir. Bu site hiçbir zaman kart
+      // numarası, CVV veya SMS/OTP kodu görmez ya da saklamaz.
 
       // 4. Müşteri Yönetim Paneli (Customer Dashboard Modal)
       if (!document.getElementById('customerDashboardModal')) {
@@ -738,7 +619,10 @@
                   <p><span id="dashContactName">Yetkili</span> • <span id="dashBizEmail">email</span> • <span class="badge-status-active">İşletme Hesabı</span></p>
                 </div>
               </div>
-              <button class="btn-dash-logout" id="dashLogoutBtn">Çıkış Yap</button>
+              <div class="dash-header-actions">
+                <button class="btn-dash-portal" id="dashPortalBtn">🔒 Faturalama Portalım (Paddle)</button>
+                <button class="btn-dash-logout" id="dashLogoutBtn">Çıkış Yap</button>
+              </div>
             </div>
 
             <!-- Dashboard Sekmeleri -->
@@ -815,7 +699,7 @@
         authContainer.innerHTML = `
           <button class="btn-nav-dashboard" id="btnNavDashboard" title="İşletme Profilim & Yönetim Paneli">
             <span class="biz-icon">🏢</span>
-            <span class="biz-title">${user.businessName}</span>
+            <span class="biz-title">${escapeHtml(user.businessName)}</span>
             <span class="dash-arrow">▾</span>
           </button>
           <button class="btn-nav-logout-icon" id="btnNavLogout" title="Oturumu Kapat">
@@ -979,10 +863,7 @@
         });
       }
 
-      // Canlı Kart Giriş Maskeleme & Önizleme
-      this.bindCardInputs();
-
-      // Checkout Formu Gönderimi
+      // Checkout Formu Gönderimi — gerçek Paddle Transaction oluşturup overlay'i açar
       const checkoutForm = document.getElementById('checkoutPaymentForm');
       if (checkoutForm) {
         checkoutForm.addEventListener('submit', (e) => {
@@ -991,22 +872,10 @@
         });
       }
 
-      // 3D Secure Modal Olayları
-      const threeDModal = document.getElementById('threeDSecureModal');
-      const btnCancel3D = document.getElementById('btnCancel3D');
-      if (btnCancel3D) {
-        btnCancel3D.addEventListener('click', () => {
-          this.closeModal(threeDModal);
-          showToast('3D Secure işlemi iptal edildi.', 'info');
-        });
-      }
-
-      const threeDForm = document.getElementById('threeDSecureForm');
-      if (threeDForm) {
-        threeDForm.addEventListener('submit', (e) => {
-          e.preventDefault();
-          this.handleThreeDSecureConfirm();
-        });
+      // Faturalama Portalı (Paddle Customer Portal)
+      const dashPortalBtn = document.getElementById('dashPortalBtn');
+      if (dashPortalBtn) {
+        dashPortalBtn.addEventListener('click', () => this.openBillingPortal());
       }
 
       // Dashboard Modal Olayları
@@ -1045,74 +914,15 @@
       this.bindPurchaseButtons();
     },
 
-    // Kart Girdisi Formatlama ve Kart Önizleme Senkronizasyonu
-    bindCardInputs() {
-      const numInput = document.getElementById('cardNumberInput');
-      const holderInput = document.getElementById('cardHolderInput');
-      const expiryInput = document.getElementById('cardExpiryInput');
-      const cvvInput = document.getElementById('cardCvvInput');
-
-      const numDisplay = document.getElementById('cardNumberDisplay');
-      const holderDisplay = document.getElementById('cardHolderDisplay');
-      const expiryDisplay = document.getElementById('cardExpiryDisplay');
-      const logoDisplay = document.getElementById('cardLogoDisplay');
-      const cardPreview = document.getElementById('creditCardPreview');
-      const inputCardType = document.getElementById('inputCardType');
-
-      if (!numInput) return;
-
-      // Kart No Formatlama (4'erli)
-      numInput.addEventListener('input', (e) => {
-        let val = e.target.value.replace(/\D/g, '').substring(0, 16);
-        let formatted = val.match(/.{1,4}/g)?.join(' ') || '';
-        e.target.value = formatted;
-
-        numDisplay.textContent = formatted || '•••• •••• •••• ••••';
-
-        // Kart Tipi
-        const brand = PaymentService.detectCardBrand(val);
-        logoDisplay.textContent = brand.toUpperCase();
-        cardPreview.className = 'credit-card-preview theme-' + brand;
-
-        if (brand === 'visa') inputCardType.textContent = '💳 Visa';
-        else if (brand === 'mastercard') inputCardType.textContent = '💳 MC';
-        else if (brand === 'troy') inputCardType.textContent = '💳 TROY';
-        else inputCardType.textContent = '💳';
-      });
-
-      // Kart Sahibi
-      holderInput.addEventListener('input', (e) => {
-        const val = e.target.value.toUpperCase();
-        holderDisplay.textContent = val || 'AD SOYAD';
-      });
-
-      // SKT Formatlama (AA/YY)
-      expiryInput.addEventListener('input', (e) => {
-        let val = e.target.value.replace(/\D/g, '').substring(0, 4);
-        if (val.length >= 3) {
-          val = val.substring(0, 2) + '/' + val.substring(2);
-        }
-        e.target.value = val;
-        expiryDisplay.textContent = val || 'AA/YY';
-      });
-
-      // CVV
-      cvvInput.addEventListener('input', (e) => {
-        e.target.value = e.target.value.replace(/\D/g, '').substring(0, 4);
-      });
-    },
-
     // Sayfadaki ürün kartlarını ve modalları "Satın Al / 1 Ay Ücretsiz Başla" işleyicisine bağla
     bindPurchaseButtons() {
       // 1. Ürün Kartları
       document.querySelectorAll('.product-card').forEach(card => {
         const title = card.querySelector('h3')?.textContent || 'Otomasyon Paketi';
         const priceEl = card.querySelector('.product-price');
-        const priceText = priceEl ? priceEl.textContent : '₺2.490';
+        const priceText = priceEl ? priceEl.textContent.trim() : '';
         const category = card.dataset.category || 'whatsapp';
-
-        // Sayısal fiyatı çek (örn: ₺2.490 -> 2490)
-        const numericPrice = parseInt(priceText.replace(/\D/g, ''), 10) || 2490;
+        const productId = card.querySelector('.btn-open-modal')?.dataset.productId || '';
 
         // Kart altına "1 Ay Ücretsiz Başla" butonu ekle / güncelle
         let btnBuy = card.querySelector('.btn-buy-package');
@@ -1128,11 +938,15 @@
 
         btnBuy.addEventListener('click', (e) => {
           e.preventDefault();
+          if (!productId) {
+            showToast('Bu ürün için satın alma şu an tanımlı değil, lütfen bizimle iletişime geçin.', 'error');
+            return;
+          }
           this.initiatePurchase({
             title: title,
             category: category,
-            price: numericPrice,
-            priceFormatted: `₺${numericPrice.toLocaleString('tr-TR')} /aylık`,
+            priceLabel: priceText,
+            productIds: [productId],
             desc: card.querySelector('p')?.textContent || '7/24 kesintisiz otomasyon çözümü.'
           });
         });
@@ -1140,6 +954,7 @@
 
       // 2. Ürün Detay Modalı Butonu
       const modalOrderBtn = document.getElementById('modalOrderBtn');
+      const productModal = document.getElementById('productModal');
       if (modalOrderBtn) {
         // Mevcut WhatsApp butonunun yanına "1 Ay Ücretsiz Satın Al" butonu ekle
         let modalBuyBtn = document.getElementById('modalBuyPackageBtn');
@@ -1154,19 +969,23 @@
         modalBuyBtn.addEventListener('click', (e) => {
           e.preventDefault();
           const title = document.getElementById('modalTitle')?.textContent || 'Otomasyon Paketi';
-          const priceStr = document.getElementById('modalPrice')?.textContent || '₺2.490';
+          const priceStr = document.getElementById('modalPrice')?.textContent || '';
           const desc = document.getElementById('modalDesc')?.textContent || '';
-          const numericPrice = parseInt(priceStr.replace(/\D/g, ''), 10) || 2490;
+          const productId = productModal?.dataset.productId || '';
 
           // Detay modalını kapatıp checkout'a geç
-          const productModal = document.getElementById('productModal');
           if (productModal) productModal.classList.remove('active');
+
+          if (!productId) {
+            showToast('Bu ürün için satın alma şu an tanımlı değil, lütfen bizimle iletişime geçin.', 'error');
+            return;
+          }
 
           this.initiatePurchase({
             title: title,
             category: 'AI Otomasyon',
-            price: numericPrice,
-            priceFormatted: `₺${numericPrice.toLocaleString('tr-TR')} /aylık`,
+            priceLabel: priceStr,
+            productIds: [productId],
             desc: desc
           });
         });
@@ -1189,15 +1008,21 @@
           const customModal = document.getElementById('customPackageModal');
           if (customModal) customModal.classList.remove('active');
 
+          const checked = Array.from(document.querySelectorAll('.pkg-mod-check:checked'));
+          const productIds = checked.map(chk => chk.dataset.productId).filter(Boolean);
           const count = document.getElementById('pkgSelectedCount')?.textContent || 'Özel Paket';
-          const priceStr = document.getElementById('pkgTotalPrice')?.textContent || '₺2.144';
-          const numericPrice = parseInt(priceStr.replace(/\D/g, ''), 10) || 2144;
+          const priceStr = document.getElementById('pkgTotalPrice')?.textContent || '';
+
+          if (!productIds.length) {
+            showToast('Lütfen en az bir modül seçin.', 'error');
+            return;
+          }
 
           this.initiatePurchase({
             title: `Özel Otomasyon Paketi (${count})`,
             category: 'Özel Paket',
-            price: numericPrice,
-            priceFormatted: `₺${numericPrice.toLocaleString('tr-TR')} /aylık`,
+            priceLabel: priceStr,
+            productIds: productIds,
             desc: 'Seçtiğiniz çoklu otomasyon modülleri içeren indirimli özel işletme paketi.'
           });
         });
@@ -1242,7 +1067,8 @@
       document.body.style.overflow = 'hidden';
     },
 
-    // Checkout Modalı Aç
+    // Checkout Modalı Aç — sadece özet gösterir, kart bilgisi burada ASLA toplanmaz.
+    // Gerçek ödeme "Devam Et" ile Paddle'ın kendi barındırdığı overlay'de alınır.
     openCheckoutModal(pkg) {
       const modal = document.getElementById('checkoutModal');
       if (!modal) return;
@@ -1258,16 +1084,11 @@
       const chargeDateFormatted = chargeDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
       document.getElementById('checkoutFirstChargeDate').textContent = chargeDateFormatted;
-      document.getElementById('checkoutRecurringPrice').textContent = `₺${pkg.price.toLocaleString('tr-TR')} / 30 gün`;
-      document.getElementById('termsRecurringText').textContent = `₺${pkg.price.toLocaleString('tr-TR')}`;
+      document.getElementById('checkoutRecurringPrice').textContent = pkg.priceLabel || '--';
+      document.getElementById('termsRecurringText').textContent = pkg.priceLabel || '--';
 
-      // Kart sahibi alanını kullanıcı adıyla doldur
+      // Fatura unvanı alanını kullanıcının işletme adıyla ön doldur
       if (user) {
-        const holderInput = document.getElementById('cardHolderInput');
-        if (holderInput && !holderInput.value) {
-          holderInput.value = user.contactName.toUpperCase();
-          document.getElementById('cardHolderDisplay').textContent = user.contactName.toUpperCase();
-        }
         const invoiceBiz = document.getElementById('invoiceBizName');
         if (invoiceBiz && !invoiceBiz.value) {
           invoiceBiz.value = user.businessName;
@@ -1278,111 +1099,95 @@
       document.body.style.overflow = 'hidden';
     },
 
-    // Checkout Formu Doğrulama ve 3D Secure'a Geçiş
-    handleCheckoutSubmit() {
-      const num = document.getElementById('cardNumberInput').value;
-      const holder = document.getElementById('cardHolderInput').value;
-      const expiry = document.getElementById('cardExpiryInput').value;
-      const cvv = document.getElementById('cardCvvInput').value;
+    // Checkout Formu Gönderimi — backend'de GERÇEK bir Paddle Transaction
+    // oluşturur, ardından Paddle'ın kendi güvenli overlay checkout'unu açar.
+    // Fiyat burada DEĞİL, sunucu tarafındaki ürün kataloğunda belirlenir; bu sayede
+    // istemci tarafında fiyat/DOM manipülasyonu ile ödeme tutarı değiştirilemez.
+    async handleCheckoutSubmit() {
       const terms = document.getElementById('termsCheck').checked;
-
       if (!terms) {
         showToast('Lütfen abonelik ve deneme şartlarını onaylayınız.', 'error');
         return;
       }
 
-      if (!holder.trim()) {
-        showToast('Lütfen kart üzerindeki adı ve soyadı giriniz.', 'error');
+      const user = AuthService.getCurrentUser();
+      const pkg = this.currentCheckoutPackage;
+      if (!user || !pkg || !pkg.productIds || !pkg.productIds.length) {
+        showToast('Oturum veya paket bilgisi bulunamadı, lütfen tekrar deneyin.', 'error');
         return;
       }
 
-      if (!PaymentService.validateCardNumber(num)) {
-        showToast('Geçersiz kart numarası! Lütfen kontrol ediniz.', 'error');
-        return;
+      const submitBtn = document.getElementById('btnSubmitPayment');
+      const originalLabel = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span>Hazırlanıyor…</span>';
+
+      try {
+        const billingDetails = {
+          invoiceBizName: document.getElementById('invoiceBizName').value || user.businessName,
+          taxNo: document.getElementById('invoiceTaxNo').value || '',
+          city: document.getElementById('invoiceCity').value || '',
+          address: document.getElementById('invoiceAddress').value || ''
+        };
+
+        const res = await fetch(`${API_BASE}/api/create-transaction`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productIds: pkg.productIds,
+            customerEmail: user.email,
+            billingDetails
+          })
+        });
+
+        const data = await res.json();
+        if (!res.ok || !data.transactionId) {
+          throw new Error(data.error || 'Ödeme oturumu oluşturulamadı.');
+        }
+
+        if (typeof Paddle === 'undefined') {
+          throw new Error('Ödeme sistemi yüklenemedi. Lütfen sayfayı yenileyip tekrar deneyin.');
+        }
+
+        // Kendi özet modalımızı kapatıp Paddle'ın kendi güvenli overlay'ini açıyoruz.
+        this.closeModal(document.getElementById('checkoutModal'));
+        Paddle.Checkout.open({
+          transactionId: data.transactionId,
+          customer: { email: user.email }
+        });
+      } catch (err) {
+        console.error('[checkout]', err);
+        showToast(err.message || 'Ödeme başlatılamadı. Lütfen daha sonra tekrar deneyin.', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalLabel;
       }
-
-      if (!PaymentService.validateExpiry(expiry)) {
-        showToast('Kart son kullanma tarihi geçersiz veya kartınızın süresi dolmuş.', 'error');
-        return;
-      }
-
-      const brand = PaymentService.detectCardBrand(num);
-      if (!PaymentService.validateCVV(cvv, brand)) {
-        showToast('Geçersiz güvenlik kodu (CVV).', 'error');
-        return;
-      }
-
-      // Kart geçerli -> 3D Secure simülasyonunu başlat
-      const masked = PaymentService.maskCardNumber(num);
-      document.getElementById('threeDCardMasked').textContent = masked;
-
-      // Checkout modalını kapat, 3D Secure modalını aç
-      document.getElementById('checkoutModal').classList.remove('active');
-      const threeDModal = document.getElementById('threeDSecureModal');
-      threeDModal.classList.add('active');
     },
 
-    // 3D Secure Doğrulama ve Aboneliğin Aktifleştirilmesi
-    handleThreeDSecureConfirm() {
-      const smsCode = document.getElementById('smsCodeInput').value.trim();
-      if (smsCode.length < 4) {
-        showToast('Lütfen geçerli bir SMS kodu giriniz.', 'error');
+    // Faturalama Portalı: Paddle Customer Portal'a yönlendirir. Abonelik iptali,
+    // kart güncelleme ve fatura indirme artık tamamen Paddle'ın güvenli sayfasında yapılır.
+    async openBillingPortal() {
+      const stored = DB.get(STORAGE_KEYS.PADDLE_CUSTOMER, null);
+      if (!stored || !stored.customerId) {
+        showToast('Faturalama portalına erişmek için önce bir paket satın almış olmanız gerekir.', 'info');
         return;
       }
 
-      const user = AuthService.getCurrentUser();
-      if (!user) {
-        showToast('Oturum zaman aşımına uğradı.', 'error');
-        return;
+      try {
+        const res = await fetch(`${API_BASE}/api/create-portal-session`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customerId: stored.customerId })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.url) {
+          throw new Error(data.error || 'Faturalama portalı açılamadı.');
+        }
+        window.location.href = data.url;
+      } catch (err) {
+        console.error('[billing-portal]', err);
+        showToast(err.message || 'Faturalama portalı açılamadı. Lütfen daha sonra tekrar deneyin.', 'error');
       }
-
-      const num = document.getElementById('cardNumberInput').value;
-      const holder = document.getElementById('cardHolderInput').value;
-      const expiry = document.getElementById('cardExpiryInput').value;
-
-      // Kartı güvenli kaydet
-      const savedCard = PaymentService.saveCard(user.id, {
-        number: num,
-        holder: holder,
-        expiry: expiry
-      });
-
-      // Fatura detayları
-      const billingDetails = {
-        invoiceBizName: document.getElementById('invoiceBizName').value || user.businessName,
-        taxNo: document.getElementById('invoiceTaxNo').value || '',
-        city: document.getElementById('invoiceCity').value || '',
-        address: document.getElementById('invoiceAddress').value || ''
-      };
-
-      // Aboneliği 30 gün ücretsiz deneme olarak oluştur
-      const pkg = this.currentCheckoutPackage;
-      const newSub = SubscriptionEngine.createSubscription({
-        businessId: user.id,
-        businessName: user.businessName,
-        packageName: pkg.title,
-        packageCategory: pkg.category,
-        monthlyPrice: pkg.price,
-        savedCardId: savedCard.id,
-        cardMasked: savedCard.masked,
-        billingDetails: billingDetails
-      });
-
-      // 3D Secure modalını kapat
-      document.getElementById('threeDSecureModal').classList.remove('active');
-      document.body.style.overflow = '';
-
-      // Formları sıfırla
-      document.getElementById('checkoutPaymentForm').reset();
-      this.currentCheckoutPackage = null;
-
-      // Tebrik ve bilgilendirme
-      showToast(`🎉 Tebrikler! "${newSub.packageName}" paketiniz ilk 30 gün ÜCRETSİZ olarak tanımlandı.`, 'success');
-
-      // Doğrudan Müşteri Paneline yönlendir
-      setTimeout(() => {
-        this.openCustomerDashboard();
-      }, 600);
     },
 
     // Müşteri Paneli Aç ve Verileri Yükle
@@ -1454,8 +1259,8 @@
           <div class="dash-sub-card ${isCancelled ? 'sub-cancelled' : ''}">
             <div class="sub-card-header">
               <div>
-                <span class="sub-category-tag">${sub.packageCategory}</span>
-                <h4>${sub.packageName}</h4>
+                <span class="sub-category-tag">${escapeHtml(sub.packageCategory)}</span>
+                <h4>${escapeHtml(sub.packageName)}</h4>
               </div>
               <div>${statusBadge}</div>
             </div>
@@ -1471,7 +1276,7 @@
               </div>
               <div class="meta-item">
                 <small>Tanımlı Kart</small>
-                <strong>${sub.cardMasked || '•••• 4242'}</strong>
+                <strong>${escapeHtml(sub.cardMasked || '•••• 4242')}</strong>
               </div>
               <div class="meta-item">
                 <small>Faturalama Döngüsü</small>
@@ -1510,37 +1315,20 @@
       });
     },
 
-    // Dashboard: Kayıtlı Kartlar
+    // Dashboard: Ödeme Yöntemi — kart bilgisi bu sitede hiç tutulmadığı için
+    // yönetim tamamen Paddle'ın kendi güvenli Faturalama Portalı'nda yapılır.
     renderDashboardCards(businessId) {
       const container = document.getElementById('savedCardsList');
-      const cards = PaymentService.getCards(businessId);
-
-      if (!cards.length) {
-        container.innerHTML = `
-          <div class="dash-empty-state">
-            <span class="empty-icon">💳</span>
-            <h4>Kayıtlı bir ödeme yönteminiz bulunmuyor.</h4>
-            <p>Bir paket satın aldığınızda kartınız güvenli şekilde buraya kaydedilir.</p>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = cards.map(c => `
-        <div class="saved-card-row">
-          <div class="saved-card-left">
-            <span class="card-brand-icon ${c.brand}">${c.brand.toUpperCase()}</span>
-            <div>
-              <strong>${c.masked}</strong>
-              <small>${c.holder} • Son Kul: ${c.expiry}</small>
-            </div>
-          </div>
-          <div class="saved-card-right">
-            <span class="badge-default-card">Varsayılan Kart</span>
-            <span class="security-pci">🔒 Güvenli Altyapı</span>
-          </div>
+      container.innerHTML = `
+        <div class="dash-empty-state">
+          <span class="empty-icon">💳</span>
+          <h4>Kart bilgileriniz bu sitede saklanmaz.</h4>
+          <p>Kayıtlı kartınızı görüntülemek, güncellemek veya değiştirmek için Paddle'ın güvenli Faturalama Portalı'nı kullanın.</p>
+          <button type="button" class="btn-primary-glow btn-sm" id="btnOpenPortalFromCards">🔒 Faturalama Portalını Aç</button>
         </div>
-      `).join('');
+      `;
+      const btn = document.getElementById('btnOpenPortalFromCards');
+      if (btn) btn.addEventListener('click', () => this.openBillingPortal());
     },
 
     // Dashboard: Fatura & İşlem Geçmişi
@@ -1576,10 +1364,10 @@
         return `
           <tr>
             <td>${dateStr}</td>
-            <td><strong>${tx.packageName}</strong><br><small style="color:var(--color-text-muted)">${tx.description}</small></td>
+            <td><strong>${escapeHtml(tx.packageName)}</strong><br><small style="color:var(--color-text-muted)">${escapeHtml(tx.description)}</small></td>
             <td>${typeBadge}</td>
             <td><strong class="${tx.amount === 0 ? 'text-free' : ''}">${amountStr}</strong></td>
-            <td><code>${tx.cardMasked || '•••• 4242'}</code></td>
+            <td><code>${escapeHtml(tx.cardMasked || '•••• 4242')}</code></td>
             <td><span class="badge-status-active">✓ Onaylandı</span></td>
           </tr>
         `;
@@ -1596,7 +1384,6 @@
   // Dışarıya Açılan Global Arayüz
   window.OtomasyonBilling = {
     AuthService,
-    PaymentService,
     SubscriptionEngine,
     UIManager
   };

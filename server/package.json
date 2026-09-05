@@ -1,0 +1,22 @@
+{
+  "name": "otomasyon-marketi-server",
+  "version": "1.0.0",
+  "description": "Otomasyon Marketi — Paddle ödeme backend'i (Transaction, Webhook, Customer Portal)",
+  "main": "server.js",
+  "private": true,
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "validate": "node -e \"require('./catalog')\" && node --check server.js"
+  },
+  "dependencies": {
+    "cors": "2.8.5",
+    "dotenv": "16.4.7",
+    "express": "4.21.2",
+    "express-rate-limit": "7.4.1",
+    "helmet": "8.0.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

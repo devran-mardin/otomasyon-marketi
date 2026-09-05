@@ -2856,6 +2856,8 @@ ul { list-style: none; }
 .brand-badge.visa { background: rgba(37, 99, 235, 0.2); border-color: #2563eb; color: #60a5fa; }
 .brand-badge.mastercard { background: rgba(234, 88, 12, 0.2); border-color: #ea580c; color: #fb923c; }
 .brand-badge.troy { background: rgba(5, 150, 105, 0.2); border-color: #059669; color: #34d399; }
+.brand-badge.paypal { background: rgba(37, 99, 235, 0.2); border-color: #003087; color: #60a5fa; }
+.brand-badge.paddle-pill { background: rgba(99, 102, 241, 0.2); border-color: #6366f1; color: #a5b4fc; }
 
 /* Canlı İnteraktif Kredi Kartı Görseli */
 .interactive-card-wrapper {
@@ -2998,6 +3000,17 @@ ul { list-style: none; }
   padding: 1rem;
   background: rgba(0, 0, 0, 0.2);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.checkout-paddle-note {
+  font-size: 0.84rem;
+  color: var(--color-text-secondary, #94a3b8);
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.25);
+  border-radius: var(--radius-md, 12px);
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.1rem;
+  line-height: 1.5;
 }
 
 .checkout-terms-box {
@@ -3178,6 +3191,12 @@ ul { list-style: none; }
   color: var(--color-text-secondary, #94a3b8);
 }
 
+.dash-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
 .btn-dash-logout {
   padding: 0.5rem 1rem;
   background: rgba(239, 68, 68, 0.1);
@@ -3192,6 +3211,23 @@ ul { list-style: none; }
 
 .btn-dash-logout:hover {
   background: #ef4444;
+  color: #ffffff;
+}
+
+.btn-dash-portal {
+  padding: 0.5rem 1rem;
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid rgba(99, 102, 241, 0.35);
+  color: #a5b4fc;
+  border-radius: var(--radius-full);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-dash-portal:hover {
+  background: #6366f1;
   color: #ffffff;
 }
 

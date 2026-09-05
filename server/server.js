@@ -21,11 +21,17 @@ const crypto = require('crypto');
 const { PRODUCTS, CUSTOM_PACKAGE_DISCOUNT_PERCENT } = require('./catalog');
 
 // ── Ortam Değişkeni Kontrolü — eksikse sunucu hiç ayağa kalkmasın ──
-const REQUIRED_ENV = ['PADDLE_API_KEY', 'PADDLE_WEBHOOK_SECRET', 'PADDLE_ENV', 'CLIENT_URL', 'ALLOWED_ORIGINS'];
+// PADDLE_WEBHOOK_SECRET kasıtlı olarak burada YOK: henüz bir Paddle webhook
+// destination'ı kurmadan da (yerelde checkout akışını test etmek için) sunucuyu
+// ayağa kaldırabilesiniz. Eksikse yalnızca /api/webhook isteği geldiğinde hata verir.
+const REQUIRED_ENV = ['PADDLE_API_KEY', 'PADDLE_ENV', 'CLIENT_URL', 'ALLOWED_ORIGINS'];
 const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
 if (missing.length) {
   console.error(`[FATAL] Eksik ortam değişkeni: ${missing.join(', ')}. .env dosyanızı kontrol edin (bkz. .env.example).`);
   process.exit(1);
+}
+if (!process.env.PADDLE_WEBHOOK_SECRET) {
+  console.warn('[uyarı] PADDLE_WEBHOOK_SECRET tanımlı değil — /api/webhook isteklerini şu an reddedecek. Paddle Dashboard\'da bir Notification destination kurunca .env\'e ekleyin.');
 }
 
 if (!['sandbox', 'production'].includes(process.env.PADDLE_ENV)) {
@@ -52,6 +58,7 @@ async function paddleFetch(path, options = {}) {
   });
   const data = await res.json().catch(() => null);
   if (!res.ok) {
+    console.error('[paddle-api-error]', JSON.stringify(data));
     const message = data?.error?.detail || data?.error?.code || `Paddle API hatası (HTTP ${res.status})`;
     throw new Error(message);
   }
@@ -74,6 +81,11 @@ app.use(cors({
 // ── Webhook: RAW body şart (imza doğrulaması için), bu yüzden
 // express.json()'dan ÖNCE tanımlanmalı. ──
 app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) => {
+  if (!process.env.PADDLE_WEBHOOK_SECRET) {
+    console.error('[webhook] PADDLE_WEBHOOK_SECRET tanımlı değil, istek reddedildi.');
+    return res.status(500).send('Webhook Error: Sunucu webhook için yapılandırılmamış.');
+  }
+
   const signatureHeader = req.headers['paddle-signature'];
   if (!signatureHeader || typeof signatureHeader !== 'string') {
     return res.status(400).send('Webhook Error: Paddle-Signature başlığı eksik.');
@@ -202,6 +214,12 @@ app.post('/api/create-transaction', apiLimiter, async (req, res) => {
           currency_code: currency
         },
         tax_mode: 'account_setting',
+        // Paddle, tam anlık (non-catalog) fiyatlarda ürünü de inline istiyor —
+        // Dashboard'da önceden bir Product oluşturmaya gerek kalmıyor.
+        product: {
+          name: item.name,
+          tax_category: 'saas'
+        },
         ...(mode === 'subscription' ? { billing_cycle: { interval: 'month', frequency: 1 } } : {}),
         ...(mode === 'subscription' && trialDays > 0
           ? { trial_period: { interval: 'day', frequency: trialDays } }

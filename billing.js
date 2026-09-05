@@ -8,15 +8,18 @@
 (function () {
   'use strict';
 
-  // Ödeme backend'inin adresi. Yerelde test ederken http://localhost:3000 yapın,
-  // canlıda Railway'e deploy ettiğiniz backend'in gerçek adresiyle değiştirin.
-  const API_BASE = 'https://api.otomasyonmarketi.net';
+  // Ödeme backend'inin adresi. Sayfa localhost/127.0.0.1'de açıldığında otomatik
+  // olarak yerel backend'e (server/, npm run dev) bağlanır; canlı domain'de
+  // (otomasyonmarketi.net) gerçek Railway adresini kullanır. Railway'e deploy
+  // ettiğinizde production adresini bu satırda güncelleyin.
+  const IS_LOCAL = ['localhost', '127.0.0.1'].includes(window.location.hostname);
+  const API_BASE = IS_LOCAL ? 'http://localhost:3000' : 'https://api.otomasyonmarketi.net';
 
   // Paddle.js client-side token — GİZLİ DEĞİLDİR, tarayıcıda görünmesi güvenlidir
   // (asıl gizli anahtar server/.env içindeki PADDLE_API_KEY'dir, buraya ASLA konmaz).
   // Paddle Dashboard > Developer Tools > Authentication'dan alın.
   // "test_..." ile başlıyorsa otomatik sandbox'a geçilir, "live_..." ise production'dır.
-  const PADDLE_CLIENT_TOKEN = 'test_...';
+  const PADDLE_CLIENT_TOKEN = 'test_73cc930baa345d767b102d9d774';
 
   // Kullanıcı girdisini innerHTML'e basmadan önce kaçış karakterlerine çevirir (XSS koruması)
   function escapeHtml(str) {

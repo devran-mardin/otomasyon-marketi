@@ -444,7 +444,7 @@
               </div>
 
               <div class="auth-policy-note">
-                Hesap oluşturarak <a href="gizlilik-ve-kvkk.html" target="_blank">Kullanım Şartları & KVKK Metni</a>'ni kabul etmiş olursunuz.
+                Hesap oluşturarak <a href="gizlilik-ve-kvkk.html#kullanim-sartlari" target="_blank">Kullanım Şartları & KVKK Metni</a>'ni kabul etmiş olursunuz.
               </div>
 
               <button type="submit" class="btn-primary-glow btn-block">

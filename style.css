@@ -207,7 +207,7 @@ ul { list-style: none; }
 .hero-fullscreen {
   position: relative;
   min-height: auto;
-  padding: 7.5rem 0 3rem 0;
+  padding: 7.5rem 0 0 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -275,21 +275,19 @@ ul { list-style: none; }
   position: relative;
   z-index: 1;
   display: grid;
-  grid-template-columns: 1fr 440px;
+  grid-template-columns: 1fr;
+  max-width: 860px;
+  margin: 0 auto;
   gap: 3.5rem;
   align-items: center;
-  text-align: left;
+  text-align: center;
   animation: fadeInUp 0.8s ease-out;
 }
 
 .hero-text-col {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-}
-
-.hero-widget-col {
-  width: 100%;
+  align-items: center;
 }
 
 /* Domain Başlık */
@@ -325,152 +323,6 @@ ul { list-style: none; }
   font-weight: 400;
   margin-bottom: 2rem;
   letter-spacing: 0.02em;
-}
-
-/* Canlı Otomasyon Sohbet Simülasyonu */
-.hero-chat-widget {
-  max-width: 100%;
-  margin: 0;
-  background: rgba(10, 15, 26, 0.95);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6), 0 0 35px rgba(16, 185, 129, 0.15);
-  text-align: left;
-  transition: transform var(--transition-base), box-shadow var(--transition-base);
-  display: flex;
-  flex-direction: column;
-}
-
-.hero-chat-widget:hover {
-  transform: translateY(-4px);
-  border-color: rgba(16, 185, 129, 0.35);
-  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7), 0 0 45px rgba(16, 185, 129, 0.25);
-}
-
-.chat-header {
-  display: flex;
-  align-items: center;
-  gap: 0.85rem;
-  padding: 0.9rem 1.25rem;
-  background: rgba(15, 23, 42, 0.9);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.chat-avatar {
-  position: relative;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #ffffff;
-  font-weight: 800;
-  font-size: 1.1rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-}
-
-.online-indicator {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 11px;
-  height: 11px;
-  background: #25d366;
-  border: 2px solid #0f172a;
-  border-radius: 50%;
-}
-
-.chat-header-info h4 {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.chat-header-info p {
-  font-size: 0.76rem;
-  color: #a7f3d0;
-  margin: 0.15rem 0 0 0;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.dot-green {
-  color: #10b981;
-  font-size: 0.7rem;
-  animation: pulseDot 2s infinite;
-}
-
-@keyframes pulseDot {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.4; transform: scale(1.2); }
-}
-
-.chat-body {
-  padding: 1.1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  height: 300px;
-  max-height: 300px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  scroll-behavior: smooth;
-}
-
-.chat-body::-webkit-scrollbar {
-  width: 5px;
-}
-.chat-body::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
-}
-.chat-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 4px;
-}
-.chat-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(16, 185, 129, 0.4);
-}
-
-.chat-msg {
-  max-width: 84%;
-  padding: 0.7rem 0.95rem;
-  position: relative;
-  font-size: 0.86rem;
-  line-height: 1.5;
-}
-
-.msg-user {
-  align-self: flex-start;
-  background: rgba(255, 255, 255, 0.07);
-  color: #e2e8f0;
-  border-radius: 16px 16px 16px 4px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.msg-bot {
-  align-self: flex-end;
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  color: #ffffff;
-  border-radius: 16px 16px 4px 16px;
-  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-}
-
-.chat-time {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.2rem;
-  font-size: 0.66rem;
-  margin-top: 0.3rem;
-  opacity: 0.75;
 }
 
 /* Sosyal Medya İkonları */
@@ -966,10 +818,19 @@ ul { list-style: none; }
   font-weight: 600;
 }
 
+.catalog-vat-note {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0 0 2rem 0;
+}
+
 .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
   gap: 2rem;
+  align-items: start;
 }
 
 .product-card {
@@ -1035,6 +896,7 @@ ul { list-style: none; }
 .icon-stock { background: rgba(16, 185, 129, 0.12); color: #34d399; }
 .icon-calendar { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
 .icon-phone { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
+.icon-bundle { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
 
 .product-content {
   display: flex;
@@ -1114,6 +976,14 @@ ul { list-style: none; }
   font-size: 1.25rem;
   font-weight: 800;
   color: #ffffff;
+}
+
+.price-old {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+  margin-right: 0.4rem;
 }
 
 .product-price span {
@@ -1475,7 +1345,7 @@ ul { list-style: none; }
    SESSİZ DARBOĞAZLAR SECTION
    ══════════════════════════════ */
 .problem-section {
-  padding: 3.5rem 0 5rem 0;
+  padding: 0 0 5rem 0;
   background: var(--color-bg);
   position: relative;
   border-bottom: 1px solid var(--color-border-light);
@@ -1650,16 +1520,7 @@ ul { list-style: none; }
 
 @media (max-width: 1024px) {
   .hero-content {
-    grid-template-columns: 1fr;
     gap: 2.5rem;
-    text-align: center;
-  }
-  .hero-text-col {
-    align-items: center;
-  }
-  .hero-chat-widget {
-    max-width: 440px;
-    margin: 0 auto;
   }
   .hero-nav-cards {
     display: flex;
@@ -1681,7 +1542,7 @@ ul { list-style: none; }
    ══════════════════════════════ */
 .hero-nav-cards {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 1rem;
   margin-top: 2rem;
   width: 100%;
@@ -1865,55 +1726,6 @@ ul { list-style: none; }
 }
 
 
-
-/* ═══════════════════════════════════════════════════
-   HERO CHAT SIMULATOR ENHANCEMENTS
-   ═══════════════════════════════════════════════════ */
-.chat-sim-controls {
-  padding: 0.85rem 1.1rem 1.1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  background: #0f172a;
-  position: relative;
-  z-index: 5;
-  flex-shrink: 0;
-}
-
-.sim-label {
-  display: block;
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: var(--color-accent);
-  margin-bottom: 0.55rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.sim-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
-.sim-chip {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: var(--color-text);
-  font-size: 0.78rem;
-  font-weight: 600;
-  padding: 0.4rem 0.75rem;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  transition: all var(--transition-fast);
-  white-space: nowrap;
-  line-height: 1.2;
-}
-
-.sim-chip:hover {
-  background: var(--color-primary-light);
-  border-color: var(--color-primary);
-  color: #ffffff;
-  transform: translateY(-1px);
-}
 
 /* ═══════════════════════════════════════════════════
    CANLI ÜRÜN ARAMA ÇUBUĞU

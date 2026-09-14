@@ -36,6 +36,15 @@ const PRODUCTS = {
     mode: 'subscription',
     trialDays: 30
   },
+  'tum-kanallar-paketi': {
+    // WhatsApp (249000) + Instagram (249000) + AI Sesli Telefon (329000) = 827000
+    // toplamın %25 aşağısı = 620250 -> ürün fiyatlandırma deseniyle (…90) uyumlu 619000'e yuvarlandı
+    name: 'Tüm Kanallar Müşteri Temsilcisi Paketi',
+    amount: 619000,
+    currency: 'try',
+    mode: 'subscription',
+    trialDays: 30
+  },
   'ai-eposta-asistani': {
     name: 'AI Akıllı E-Posta Asistanı',
     amount: 199000,

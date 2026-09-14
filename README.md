@@ -11,7 +11,6 @@ Yapay zeka destekli otomasyon çözümlerinin (WhatsApp, Instagram, Telegram, E-
 - **Barındırma & Deploy:** GitHub + Railway / CNAME
 
 ## 🌟 Özellikler
-- 💬 **Canlı Hero Chat Simülatörü:** Ziyaretçilerin yapay zeka otomasyonunu canlı deneyimlediği sohbet simülasyonu.
 - 💰 **İnteraktif Tasarruf & ROI Hesaplayıcı:** İşletmenin aylık zaman ve maliyet kazancını anlık hesaplayan dinamik araç.
 - 📦 **Özel Paket Oluşturucu Sihirbazı:** Müşterilerin modül seçerek %20 indirimli paket oluşturmasını sağlayan modal.
 - 🔍 **Canlı Katalog Arama & Filtreleme:** Kategoriye ve kelimeye göre anlık arama yapan ürün kataloğu.

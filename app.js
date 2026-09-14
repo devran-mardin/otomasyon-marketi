@@ -270,67 +270,6 @@ function initScrollReveal() {
 
 
 
-// ── 2. Canlı Hero Chat Simülatörü ──
-function initChatSimulator() {
-  const simChips = document.querySelectorAll(".sim-chip");
-  const chatBody = document.querySelector(".chat-body");
-
-  if (!simChips.length || !chatBody) return;
-
-  const scenarios = {
-    fiyat: {
-      user: "Otomasyon fiyatları ne kadar?",
-      bot: "Aylık otomasyon paketlerimiz ₺1.890'dan başlamaktadır. İhtiyacınıza göre WhatsApp, Telefon, Instagram ve E-Posta çözümlerimizden dilediğinizi seçebilirsiniz. 🚀"
-    },
-    telefon: {
-      user: "Telefon aramalarını yapay zeka karşılayabilir mi?",
-      bot: "Evet! AI Sesli Telefon Asistanımız 7/24 gelen aramaları doğal Türkçe ses ile yanıtlar, bilgi verir ve arama özetlerini iletir. 📞"
-    },
-    stok: {
-      user: "Stok azaldığında WhatsApp bildirimi gönderiyor mu?",
-      bot: "Kesinlikle! Market Stock Control otomasyonumuz kritik eşiğin altına düşen ürünleri 7/24 takip edip yetkili ekibinize anlık mesaj atar."
-    },
-    dm: {
-      user: "Instagram Reels yorumlarına otomatik DM atabiliyor musunuz?",
-      bot: "Evet! Gönderinize 'FİYAT' yazan herkese 2 saniye içinde özel teklif ve katalog linkinizi DM kutusuna düşürüyoruz."
-    }
-  };
-
-  simChips.forEach(chip => {
-    chip.addEventListener("click", () => {
-      const scenarioKey = chip.dataset.scenario;
-      const data = scenarios[scenarioKey];
-      if (!data) return;
-
-      const nowStr = new Date().toLocaleTimeString("tr-TR", { hour: "2-digit", minute: "2-digit" });
-
-      // Kullanıcı Mesajını Ekle
-      const userMsgDiv = document.createElement("div");
-      userMsgDiv.className = "chat-msg msg-user";
-      userMsgDiv.innerHTML = `<p>${data.user}</p><span class="chat-time">${nowStr}</span>`;
-      chatBody.appendChild(userMsgDiv);
-
-      // Yazıyor efekti ekle
-      const typingDiv = document.createElement("div");
-      typingDiv.className = "chat-msg msg-bot typing-indicator-msg";
-      typingDiv.innerHTML = `<p><em>Otomasyon AI yazıyor...</em></p>`;
-      chatBody.appendChild(typingDiv);
-
-      chatBody.scrollTop = chatBody.scrollHeight;
-
-      // 700ms sonra Bot Yanıtını Ekle
-      setTimeout(() => {
-        typingDiv.remove();
-        const botMsgDiv = document.createElement("div");
-        botMsgDiv.className = "chat-msg msg-bot";
-        botMsgDiv.innerHTML = `<p>${data.bot}</p><span class="chat-time">${nowStr} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></span>`;
-        chatBody.appendChild(botMsgDiv);
-        chatBody.scrollTop = chatBody.scrollHeight;
-      }, 700);
-    });
-  });
-}
-
 // ── 3. Canlı Ürün Arama ──
 function initProductSearch() {
   const searchInput = document.getElementById("catalogSearchInput");
@@ -471,7 +410,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initProductModal();
   initFAQAccordion();
 
-  initChatSimulator();
   initProductSearch();
 
   initContactForm();

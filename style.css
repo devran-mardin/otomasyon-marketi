@@ -1526,11 +1526,6 @@ ul { list-style: none; }
   .hero-content {
     gap: 2.5rem;
   }
-  .hero-nav-cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
 }
 
 @media (max-width: 992px) {
@@ -1550,6 +1545,16 @@ ul { list-style: none; }
   gap: 1rem;
   margin-top: 2rem;
   width: 100%;
+}
+
+/* Telefon/tablet genişliğinde 4 kolon sığmadığı için 2'li grid'e düşer.
+   Bu kural .hero-nav-cards'ın temel tanımından SONRA gelmeli — aksi halde
+   eşit özgüllükte (specificity) olduğu için kaynak sırası yüzünden temel
+   kural mobil media query'yi ezer ve mobilde kartlar taşar/kaybolur. */
+@media (max-width: 1024px) {
+  .hero-nav-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .nav-card {

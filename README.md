@@ -19,13 +19,13 @@ Yapay zeka destekli otomasyon çözümlerinin (WhatsApp, Instagram, Telegram, E-
   üzerinden gerçek bir Paddle Transaction oluşturup Paddle.js overlay checkout'unu açar; kart
   bilgisi bu sitede hiç tutulmaz, KDV/vergiyi Merchant of Record olarak Paddle hesaplar.
   Detaylar için `server/README.md`.
-- ⚖️ **Yasal Uyum:** KVKK, Gizlilik Politikası ve 1 Ay Ücretsiz Cayma Hakkı Şartları (`gizlilik-ve-kvkk.html`).
+- ⚖️ **Yasal Uyum:** KVKK, Gizlilik Politikası ve 7 Gün Ücretsiz Cayma Hakkı Şartları (`gizlilik-ve-kvkk.html`).
 - 🚫 **Özel 404 Sayfası:** Şık hata yönetimi (`404.html`).
 
 ## 💳 Ödeme Altyapısı
 
 `billing.js` artık kart bilgisi toplamaz veya sahte bir ödeme akışı çalıştırmaz.
-"Satın Al / 1 Ay Ücretsiz Başla" butonları, `server/` klasöründeki Node/Express backend'ini
+"Satın Al / 7 Gün Ücretsiz Başla" butonları, `server/` klasöründeki Node/Express backend'ini
 çağırıp bir Paddle Transaction oluşturur ve kullanıcıya Paddle.js'in kendi güvenli overlay
 checkout'unu (site üzerinde açılan ödeme penceresi) açar. Paddle bir Merchant of Record
 olduğu için KDV/vergi beyanını da kendisi üstlenir.

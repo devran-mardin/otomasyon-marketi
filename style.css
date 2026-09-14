@@ -2331,7 +2331,7 @@ ul { list-style: none; }
   border-color: #ef4444;
 }
 
-/* ── Ürün Kartlarındaki "1 Ay Ücretsiz Başla" Butonları ── */
+/* ── Ürün Kartlarındaki "7 Gün Ücretsiz Başla" Butonları ── */
 .btn-buy-package {
   display: inline-flex;
   align-items: center;

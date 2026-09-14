@@ -159,9 +159,9 @@
   // Paddle overlay checkout / Paddle Customer Portal üzerinden yürüyor (bkz.
   // UIManager içindeki handleCheckoutSubmit ve openBillingPortal).
 
-  // ── 4. 30 Gün Ücretsiz Deneme & Abonelik Motoru (SubscriptionEngine) ──
+  // ── 4. 7 Gün Ücretsiz Deneme & Abonelik Motoru (SubscriptionEngine) ──
   const SubscriptionEngine = {
-    TRIAL_DAYS: 30,
+    TRIAL_DAYS: 7,
     BILLING_CYCLE_DAYS: 30,
 
     getSubscriptions(businessId = null) {
@@ -176,7 +176,7 @@
       return txs.filter(t => t.businessId === businessId);
     },
 
-    // Yeni Abonelik Başlatma (İlk 30 Gün Ücretsiz)
+    // Yeni Abonelik Başlatma (İlk 7 Gün Ücretsiz)
     createSubscription(params) {
       const {
         businessId,
@@ -190,7 +190,7 @@
       } = params;
 
       const now = new Date();
-      // İlk 30 gün ücretsiz bitişi ve ilk tahsilat tarihi:
+      // İlk 7 gün ücretsiz bitişi ve ilk tahsilat tarihi:
       const trialEnds = new Date(now.getTime() + this.TRIAL_DAYS * 24 * 60 * 60 * 1000);
 
       const subId = 'sub_' + Date.now();
@@ -230,7 +230,7 @@
         type: 'trial_authorization',
         status: 'success',
         cardMasked: cardMasked,
-        description: '30 Günlük Ücretsiz Deneme Başlangıç Provizyonu (₺0.00)',
+        description: '7 Günlük Ücretsiz Deneme Başlangıç Provizyonu (₺0.00)',
         nextChargeAmount: monthlyPrice,
         nextChargeDate: trialEnds.toISOString()
       });
@@ -400,7 +400,7 @@
             <form id="businessRegisterForm" class="auth-tab-pane active">
               <div class="auth-header">
                 <h3>İşletmeniz İçin Hesap Oluşturun</h3>
-                <p>Yapay zeka otomasyonlarını anında aktifleştirin, 30 gün boyunca hiçbir ücret ödemeden deneyin.</p>
+                <p>Yapay zeka otomasyonlarını anında aktifleştirin, 7 gün boyunca hiçbir ücret ödemeden deneyin.</p>
               </div>
 
               <div class="form-group">
@@ -488,13 +488,13 @@
             <div class="checkout-grid">
               <!-- Sol: Paket & Deneme Özeti -->
               <div class="checkout-summary-pane">
-                <div class="checkout-badge-top">🎁 30 Gün Ücretsiz Deneme Fırsatı</div>
+                <div class="checkout-badge-top">🎁 7 Gün Ücretsiz Deneme Fırsatı</div>
                 <h3 id="checkoutPackageTitle" class="checkout-pkg-name">WhatsApp Akıllı Müşteri Temsilcisi</h3>
                 <p id="checkoutPackageDesc" class="checkout-pkg-desc">7/24 gelen müşteri sorularını yapay zeka ile otomatik yanıtlayın.</p>
 
                 <div class="trial-highlight-box">
                   <div class="trial-row">
-                    <span>İlk 30 Günlük Tutar:</span>
+                    <span>İlk 7 Günlük Tutar:</span>
                     <strong class="text-free">₺0 (ÜCRETSİZ)</strong>
                   </div>
                   <div class="trial-row">
@@ -502,7 +502,7 @@
                     <strong id="checkoutFirstChargeDate">--</strong>
                   </div>
                   <div class="trial-row">
-                    <span>30 Gün Sonraki Periyodik Ücret:</span>
+                    <span>7 Gün Sonraki Periyodik Ücret:</span>
                     <strong id="checkoutRecurringPrice">₺2.490 / 30 gün</strong>
                   </div>
                 </div>
@@ -511,7 +511,7 @@
                   <div class="guar-item">
                     <span class="guar-icon">🛡️</span>
                     <div>
-                      <strong>30 Gün Boyunca ₺0 Çekim</strong>
+                      <strong>7 Gün Boyunca ₺0 Çekim</strong>
                       <p>Kartınız yalnızca abonelik devamlılığı için doğrulanır, bugün hiçbir ücret kesilmez.</p>
                     </div>
                   </div>
@@ -519,7 +519,7 @@
                     <span class="guar-icon">⚡</span>
                     <div>
                       <strong>Dilediğiniz An Tek Tıkla İptal</strong>
-                      <p>Panelinizden 30 gün dolmadan önce iptal ederseniz tek kuruş ödemezsiniz.</p>
+                      <p>Panelinizden 7 gün dolmadan önce iptal ederseniz tek kuruş ödemezsiniz.</p>
                     </div>
                   </div>
                   <div class="guar-item">
@@ -585,7 +585,7 @@
                     <label class="checkbox-label">
                       <input type="checkbox" id="termsCheck" required checked>
                       <span>
-                        <strong>İlk 30 gün ₺0</strong> tutarını, 30 gün sonra her 30 günde bir <span id="termsRecurringText">₺2.490</span> otomatik yenileme şartını ve <a href="gizlilik-ve-kvkk.html" target="_blank">Abonelik & Mesafeli Satış Sözleşmesi</a>'ni onaylıyorum.
+                        <strong>İlk 7 gün ₺0</strong> tutarını, 7 gün sonra her 30 günde bir <span id="termsRecurringText">₺2.490</span> otomatik yenileme şartını ve <a href="gizlilik-ve-kvkk.html" target="_blank">Abonelik & Mesafeli Satış Sözleşmesi</a>'ni onaylıyorum.
                       </span>
                     </label>
                   </div>
@@ -917,7 +917,7 @@
       this.bindPurchaseButtons();
     },
 
-    // Sayfadaki ürün kartlarını ve modalları "Satın Al / 1 Ay Ücretsiz Başla" işleyicisine bağla
+    // Sayfadaki ürün kartlarını ve modalları "Satın Al / 7 Gün Ücretsiz Başla" işleyicisine bağla
     bindPurchaseButtons() {
       // 1. Ürün Kartları
       document.querySelectorAll('.product-card').forEach(card => {
@@ -927,12 +927,12 @@
         const category = card.dataset.category || 'whatsapp';
         const productId = card.querySelector('.btn-open-modal')?.dataset.productId || '';
 
-        // Kart altına "1 Ay Ücretsiz Başla" butonu ekle / güncelle
+        // Kart altına "7 Gün Ücretsiz Başla" butonu ekle / güncelle
         let btnBuy = card.querySelector('.btn-buy-package');
         if (!btnBuy) {
           btnBuy = document.createElement('button');
           btnBuy.className = 'btn-buy-package';
-          btnBuy.innerHTML = `<span>1 Ay Ücretsiz Başla ➔</span>`;
+          btnBuy.innerHTML = `<span>7 Gün Ücretsiz Başla ➔</span>`;
           const footer = card.querySelector('.product-footer');
           if (footer) {
             footer.appendChild(btnBuy);
@@ -959,13 +959,13 @@
       const modalOrderBtn = document.getElementById('modalOrderBtn');
       const productModal = document.getElementById('productModal');
       if (modalOrderBtn) {
-        // Mevcut WhatsApp butonunun yanına "1 Ay Ücretsiz Satın Al" butonu ekle
+        // Mevcut WhatsApp butonunun yanına "7 Gün Ücretsiz Satın Al" butonu ekle
         let modalBuyBtn = document.getElementById('modalBuyPackageBtn');
         if (!modalBuyBtn) {
           modalBuyBtn = document.createElement('button');
           modalBuyBtn.id = 'modalBuyPackageBtn';
           modalBuyBtn.className = 'btn-modal-buy-trial';
-          modalBuyBtn.innerHTML = `🎁 1 Ay Ücretsiz Başla (Satın Al)`;
+          modalBuyBtn.innerHTML = `🎁 7 Gün Ücretsiz Başla (Satın Al)`;
           modalOrderBtn.parentNode.insertBefore(modalBuyBtn, modalOrderBtn);
         }
 
@@ -1002,7 +1002,7 @@
           pkgBuyBtn = document.createElement('button');
           pkgBuyBtn.id = 'pkgDirectBuyBtn';
           pkgBuyBtn.className = 'btn-pkg-buy-trial';
-          pkgBuyBtn.innerHTML = `🎁 1 Ay Ücretsiz Bu Paketi Başlat`;
+          pkgBuyBtn.innerHTML = `🎁 7 Gün Ücretsiz Bu Paketi Başlat`;
           pkgWaBtn.parentNode.insertBefore(pkgBuyBtn, pkgWaBtn);
         }
 
@@ -1039,7 +1039,7 @@
 
       if (!currentUser) {
         // Kullanıcı giriş yapmamışsa önce Auth modalını aç
-        showToast('Satın alma ve 30 günlük ücretsiz deneme için lütfen önce işletme hesabı oluşturun veya giriş yapın.', 'info');
+        showToast('Satın alma ve 7 günlük ücretsiz deneme için lütfen önce işletme hesabı oluşturun veya giriş yapın.', 'info');
         this.openAuthModal('register');
       } else {
         // Giriş yapmışsa doğrudan checkout modalını aç
@@ -1083,7 +1083,7 @@
       document.getElementById('checkoutPackageDesc').textContent = pkg.desc;
 
       const now = new Date();
-      const chargeDate = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+      const chargeDate = new Date(now.getTime() + SubscriptionEngine.TRIAL_DAYS * 24 * 60 * 60 * 1000);
       const chargeDateFormatted = chargeDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
       document.getElementById('checkoutFirstChargeDate').textContent = chargeDateFormatted;
@@ -1233,7 +1233,7 @@
           <div class="dash-empty-state">
             <span class="empty-icon">📦</span>
             <h4>Henüz aktif bir otomasyon paketiniz bulunmuyor.</h4>
-            <p>Kataloğumuzdaki tüm otomasyonları 30 gün boyunca ücretsiz deneyebilirsiniz.</p>
+            <p>Kataloğumuzdaki tüm otomasyonları 7 gün boyunca ücretsiz deneyebilirsiniz.</p>
             <a href="#otomasyonlar" class="btn-primary-glow btn-sm" onclick="document.getElementById('customerDashboardModal').classList.remove('active');document.body.style.overflow='';">
               Otomasyonları Keşfet ➔
             </a>
@@ -1253,7 +1253,7 @@
         if (isCancelled) {
           statusBadge = `<span class="badge-status-cancelled">❌ İptal Edildi</span>`;
         } else if (isTrialing) {
-          statusBadge = `<span class="badge-status-trial">🎁 30 Gün Ücretsiz Deneme (${daysLeft} gün kaldı)</span>`;
+          statusBadge = `<span class="badge-status-trial">🎁 7 Gün Ücretsiz Deneme (${daysLeft} gün kaldı)</span>`;
         } else {
           statusBadge = `<span class="badge-status-active">🟢 Aktif Abonelik (${daysLeft} gün sonra yenilenecek)</span>`;
         }
@@ -1355,7 +1355,7 @@
         
         let typeBadge = '';
         if (tx.type === 'trial_authorization') {
-          typeBadge = '<span class="tx-badge trial">30 Günlük Deneme</span>';
+          typeBadge = '<span class="tx-badge trial">7 Günlük Deneme</span>';
         } else if (tx.type === 'recurring_charge') {
           typeBadge = '<span class="tx-badge recurring">Periyodik Tahsilat</span>';
         } else if (tx.type === 'cancellation') {

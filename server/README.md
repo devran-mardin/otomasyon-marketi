@@ -1,6 +1,6 @@
 # Otomasyon Marketi — Ödeme Backend'i (Paddle Billing)
 
-`otomasyonmarketi.net` sitesindeki "Satın Al / 1 Ay Ücretsiz Başla" butonlarının
+`otomasyonmarketi.net` sitesindeki "Satın Al / 7 Gün Ücretsiz Başla" butonlarının
 bağlandığı, gerçek Paddle ödemelerini işleyen küçük Node/Express servisi.
 
 **Neden Paddle?** Paddle bir "Merchant of Record"dur — yani sizin adınıza satıcı

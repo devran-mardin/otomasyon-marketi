@@ -337,7 +337,7 @@ function initContactForm() {
       `📞 Telefon: ${phone}\n` +
       `📦 İlgilenilen Otomasyon: ${service}\n` +
       (msg ? `📝 Mesaj: ${msg}\n\n` : "") +
-      `1 ay ücretsiz deneme ve detaylar hakkında görüşmek istiyorum.`
+      `7 gün ücretsiz deneme ve detaylar hakkında görüşmek istiyorum.`
     );
 
     const waUrl = `https://wa.me/905530551369?text=${waText}`;

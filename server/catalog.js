@@ -20,21 +20,21 @@ const PRODUCTS = {
     amount: 249000,
     currency: 'try',
     mode: 'subscription',
-    trialDays: 30
+    trialDays: 7
   },
   'ai-sesli-telefon-asistani': {
     name: 'AI Sesli Telefon Asistanı',
     amount: 329000,
     currency: 'try',
     mode: 'subscription',
-    trialDays: 30
+    trialDays: 7
   },
   'instagram-auto-dm-yorum': {
     name: 'Instagram Auto-DM & Yorum Yanıtlayıcı',
     amount: 249000,
     currency: 'try',
     mode: 'subscription',
-    trialDays: 30
+    trialDays: 7
   },
   'tum-kanallar-paketi': {
     // WhatsApp (249000) + Instagram (249000) + AI Sesli Telefon (329000) = 827000
@@ -43,14 +43,14 @@ const PRODUCTS = {
     amount: 619000,
     currency: 'try',
     mode: 'subscription',
-    trialDays: 30
+    trialDays: 7
   },
   'ai-eposta-asistani': {
     name: 'AI Akıllı E-Posta Asistanı',
     amount: 199000,
     currency: 'try',
     mode: 'subscription',
-    trialDays: 30
+    trialDays: 7
   },
   'b2b-lead-bulucu-bot': {
     name: 'B2B Müşteri & E-posta Bulucu Bot',
@@ -64,14 +64,14 @@ const PRODUCTS = {
     amount: 199000,
     currency: 'try',
     mode: 'subscription',
-    trialDays: 30
+    trialDays: 7
   },
   'eticaret-sepet-tahsilat-bot': {
     name: 'E-Ticaret Terk Edilen Sepet & Tahsilat Botu',
     amount: 189000,
     currency: 'try',
     mode: 'subscription',
-    trialDays: 30
+    trialDays: 7
   },
   'market-stock-control': {
     name: 'Market Stock Control Otomasyonu',

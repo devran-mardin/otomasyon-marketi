@@ -66,9 +66,9 @@ const PRODUCTS = {
     mode: 'subscription',
     trialDays: 7
   },
-  'eticaret-sepet-tahsilat-bot': {
-    name: 'E-Ticaret Terk Edilen Sepet & Tahsilat Botu',
-    amount: 189000,
+  'galeriai-oto-galeri-botu': {
+    name: 'GaleriAI - Oto Galeri Yönetim & AI Asistan Botu',
+    amount: 499000,
     currency: 'try',
     mode: 'subscription',
     trialDays: 7

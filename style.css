@@ -901,6 +901,7 @@ ul { list-style: none; }
 .icon-calendar { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
 .icon-phone { background: rgba(236, 72, 153, 0.15); color: #f472b6; }
 .icon-bundle { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
+.icon-galeri { background: rgba(249, 115, 22, 0.12); color: #fb923c; }
 
 .product-content {
   display: flex;

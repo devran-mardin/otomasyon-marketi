@@ -2425,6 +2425,8 @@ ul { list-style: none; }
   padding: 2rem;
   position: relative;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+  max-height: 90vh;
+  overflow-y: auto;
 }
 
 .auth-tabs {

@@ -32,8 +32,6 @@
   const STORAGE_KEYS = {
     USERS: 'otomasyon_users',
     SESSION: 'otomasyon_active_session',
-    SUBSCRIPTIONS: 'otomasyon_subscriptions',
-    TRANSACTIONS: 'otomasyon_transactions',
     PADDLE_CUSTOMER: 'otomasyon_paddle_customer'
   };
 
@@ -159,176 +157,9 @@
   // Paddle overlay checkout / Paddle Customer Portal üzerinden yürüyor (bkz.
   // UIManager içindeki handleCheckoutSubmit ve openBillingPortal).
 
-  // ── 4. 7 Gün Ücretsiz Deneme & Abonelik Motoru (SubscriptionEngine) ──
-  const SubscriptionEngine = {
-    TRIAL_DAYS: 7,
-    BILLING_CYCLE_DAYS: 30,
-
-    getSubscriptions(businessId = null) {
-      const subs = DB.get(STORAGE_KEYS.SUBSCRIPTIONS, []);
-      if (!businessId) return subs;
-      return subs.filter(s => s.businessId === businessId);
-    },
-
-    getTransactions(businessId = null) {
-      const txs = DB.get(STORAGE_KEYS.TRANSACTIONS, []);
-      if (!businessId) return txs;
-      return txs.filter(t => t.businessId === businessId);
-    },
-
-    // Yeni Abonelik Başlatma (İlk 7 Gün Ücretsiz)
-    createSubscription(params) {
-      const {
-        businessId,
-        businessName,
-        packageName,
-        packageCategory,
-        monthlyPrice,
-        savedCardId,
-        cardMasked,
-        billingDetails
-      } = params;
-
-      const now = new Date();
-      // İlk 7 gün ücretsiz bitişi ve ilk tahsilat tarihi:
-      const trialEnds = new Date(now.getTime() + this.TRIAL_DAYS * 24 * 60 * 60 * 1000);
-
-      const subId = 'sub_' + Date.now();
-
-      const newSubscription = {
-        id: subId,
-        businessId: businessId,
-        businessName: businessName,
-        packageName: packageName,
-        packageCategory: packageCategory || 'AI Otomasyon',
-        monthlyPrice: monthlyPrice, // örn: 2490
-        currency: 'TRY',
-        symbol: '₺',
-        status: 'trialing', // 'trialing' (ücretsiz deneme), 'active' (faturalandırılmış), 'cancelled' (iptal)
-        createdAt: now.toISOString(),
-        trialStartedAt: now.toISOString(),
-        trialEndsAt: trialEnds.toISOString(),
-        nextBillingDate: trialEnds.toISOString(),
-        cycleDays: this.BILLING_CYCLE_DAYS,
-        billingCount: 0,
-        savedCardId: savedCardId,
-        cardMasked: cardMasked,
-        billingDetails: billingDetails || {}
-      };
-
-      const subs = DB.get(STORAGE_KEYS.SUBSCRIPTIONS, []);
-      subs.unshift(newSubscription);
-      DB.set(STORAGE_KEYS.SUBSCRIPTIONS, subs);
-
-      // İlk Provizyon İşlemi Kaydı (₺0 Deneme Başlatma)
-      this.recordTransaction({
-        subscriptionId: subId,
-        businessId: businessId,
-        packageName: packageName,
-        amount: 0,
-        currency: 'TRY',
-        type: 'trial_authorization',
-        status: 'success',
-        cardMasked: cardMasked,
-        description: '7 Günlük Ücretsiz Deneme Başlangıç Provizyonu (₺0.00)',
-        nextChargeAmount: monthlyPrice,
-        nextChargeDate: trialEnds.toISOString()
-      });
-
-      return newSubscription;
-    },
-
-    // Abonelik İptali
-    cancelSubscription(subscriptionId, businessId) {
-      const subs = DB.get(STORAGE_KEYS.SUBSCRIPTIONS, []);
-      const sub = subs.find(s => s.id === subscriptionId && s.businessId === businessId);
-
-      if (!sub) return { success: false, message: 'Abonelik bulunamadı.' };
-
-      sub.status = 'cancelled';
-      sub.cancelledAt = new Date().toISOString();
-      DB.set(STORAGE_KEYS.SUBSCRIPTIONS, subs);
-
-      this.recordTransaction({
-        subscriptionId: subscriptionId,
-        businessId: businessId,
-        packageName: sub.packageName,
-        amount: 0,
-        currency: 'TRY',
-        type: 'cancellation',
-        status: 'cancelled',
-        cardMasked: sub.cardMasked,
-        description: 'Abonelik kullanıcı talebiyle iptal edildi.'
-      });
-
-      return { success: true, message: 'Aboneliğiniz başarıyla iptal edildi. Deneme veya aktif dönemin sonuna kadar hizmetiniz durdurulmaz.' };
-    },
-
-    // İşlem Kaydetme
-    recordTransaction(tx) {
-      const txs = DB.get(STORAGE_KEYS.TRANSACTIONS, []);
-      const newTx = {
-        id: 'tx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-        date: new Date().toISOString(),
-        ...tx
-      };
-      txs.unshift(newTx);
-      DB.set(STORAGE_KEYS.TRANSACTIONS, txs);
-      return newTx;
-    },
-
-    // Kalan Gün Hesaplayıcı
-    calculateDaysLeft(targetDateStr) {
-      const target = new Date(targetDateStr);
-      const now = new Date();
-      const diffMs = target.getTime() - now.getTime();
-      const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-      return diffDays > 0 ? diffDays : 0;
-    },
-
-    // Arka Plan Periyodik Tahsilat Kontrolü (30 günde bir)
-    checkAndProcessRecurringBilling() {
-      const subs = DB.get(STORAGE_KEYS.SUBSCRIPTIONS, []);
-      const now = new Date();
-      let updated = false;
-
-      subs.forEach(sub => {
-        if (sub.status === 'cancelled') return;
-
-        const nextBilling = new Date(sub.nextBillingDate);
-        if (now >= nextBilling) {
-          // Tahsilat zamanı geldi (30 gün doldu)
-          sub.status = 'active';
-          sub.billingCount = (sub.billingCount || 0) + 1;
-          sub.lastBilledAt = now.toISOString();
-
-          // Bir sonraki 30 günlük tarihi hesapla
-          const nextCycle = new Date(now.getTime() + this.BILLING_CYCLE_DAYS * 24 * 60 * 60 * 1000);
-          sub.nextBillingDate = nextCycle.toISOString();
-          updated = true;
-
-          // Tahsilat dekontu oluştur
-          this.recordTransaction({
-            subscriptionId: sub.id,
-            businessId: sub.businessId,
-            packageName: sub.packageName,
-            amount: sub.monthlyPrice,
-            currency: 'TRY',
-            type: 'recurring_charge',
-            status: 'success',
-            cardMasked: sub.cardMasked,
-            description: `${sub.packageName} - 30 Günlük Otomatik Abonelik Tahsilatı`,
-            nextChargeAmount: sub.monthlyPrice,
-            nextChargeDate: sub.nextBillingDate
-          });
-        }
-      });
-
-      if (updated) {
-        DB.set(STORAGE_KEYS.SUBSCRIPTIONS, subs);
-      }
-    }
-  };
+  // Paddle'daki gerçek deneme süresi (checkout'ta ilk tahsilat tarihini göstermek için kullanılır).
+  // Gerçek abonelik/fatura durumu tamamen Paddle'da tutulur — bkz. openBillingPortal().
+  const TRIAL_DAYS = 7;
 
   // ── 5. Kullanıcı Arayüzü Yöneticisi (UIManager) ──
   const UIManager = {
@@ -338,7 +169,6 @@
       this.injectModals();
       this.bindEvents();
       this.updateNavAuth();
-      SubscriptionEngine.checkAndProcessRecurringBilling();
       this.initPaddle();
     },
 
@@ -1083,7 +913,7 @@
       document.getElementById('checkoutPackageDesc').textContent = pkg.desc;
 
       const now = new Date();
-      const chargeDate = new Date(now.getTime() + SubscriptionEngine.TRIAL_DAYS * 24 * 60 * 60 * 1000);
+      const chargeDate = new Date(now.getTime() + TRIAL_DAYS * 24 * 60 * 60 * 1000);
       const chargeDateFormatted = chargeDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
 
       document.getElementById('checkoutFirstChargeDate').textContent = chargeDateFormatted;
@@ -1223,99 +1053,20 @@
       document.body.style.overflow = 'hidden';
     },
 
-    // Dashboard: Abonelikler Listesi
+    // Dashboard: Abonelikler — abonelik/deneme durumu ve iptal işlemi güvenlik
+    // nedeniyle bu sitede tutulmaz, tamamen Paddle'ın Faturalama Portalı'nda yapılır.
     renderDashboardSubscriptions(businessId) {
       const container = document.getElementById('activeSubsList');
-      const subs = SubscriptionEngine.getSubscriptions(businessId);
-
-      if (!subs.length) {
-        container.innerHTML = `
-          <div class="dash-empty-state">
-            <span class="empty-icon">📦</span>
-            <h4>Henüz aktif bir otomasyon paketiniz bulunmuyor.</h4>
-            <p>Kataloğumuzdaki tüm otomasyonları 7 gün boyunca ücretsiz deneyebilirsiniz.</p>
-            <a href="#otomasyonlar" class="btn-primary-glow btn-sm" onclick="document.getElementById('customerDashboardModal').classList.remove('active');document.body.style.overflow='';">
-              Otomasyonları Keşfet ➔
-            </a>
-          </div>
-        `;
-        return;
-      }
-
-      container.innerHTML = subs.map(sub => {
-        const isCancelled = sub.status === 'cancelled';
-        const isTrialing = sub.status === 'trialing';
-
-        const nextDate = new Date(sub.nextBillingDate).toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-        const daysLeft = SubscriptionEngine.calculateDaysLeft(sub.nextBillingDate);
-
-        let statusBadge = '';
-        if (isCancelled) {
-          statusBadge = `<span class="badge-status-cancelled">❌ İptal Edildi</span>`;
-        } else if (isTrialing) {
-          statusBadge = `<span class="badge-status-trial">🎁 7 Gün Ücretsiz Deneme (${daysLeft} gün kaldı)</span>`;
-        } else {
-          statusBadge = `<span class="badge-status-active">🟢 Aktif Abonelik (${daysLeft} gün sonra yenilenecek)</span>`;
-        }
-
-        return `
-          <div class="dash-sub-card ${isCancelled ? 'sub-cancelled' : ''}">
-            <div class="sub-card-header">
-              <div>
-                <span class="sub-category-tag">${escapeHtml(sub.packageCategory)}</span>
-                <h4>${escapeHtml(sub.packageName)}</h4>
-              </div>
-              <div>${statusBadge}</div>
-            </div>
-
-            <div class="sub-card-meta-grid">
-              <div class="meta-item">
-                <small>Aylık Periyodik Tutar</small>
-                <strong>₺${sub.monthlyPrice.toLocaleString('tr-TR')} / 30 gün</strong>
-              </div>
-              <div class="meta-item">
-                <small>Bir Sonraki Tahsilat</small>
-                <strong>${isCancelled ? 'Tahsilat Yapılmayacak' : nextDate}</strong>
-              </div>
-              <div class="meta-item">
-                <small>Tanımlı Kart</small>
-                <strong>${escapeHtml(sub.cardMasked || '•••• 4242')}</strong>
-              </div>
-              <div class="meta-item">
-                <small>Faturalama Döngüsü</small>
-                <strong>30 Günde Bir Tekrarlanan</strong>
-              </div>
-            </div>
-
-            <div class="sub-card-footer">
-              ${!isCancelled ? `
-                <button class="btn-sub-cancel" data-subid="${sub.id}">
-                  Aboneliği İptal Et
-                </button>
-              ` : `
-                <span class="text-cancelled-info">Bu paket iptal edilmiştir. Süre sonuna kadar hizmetiniz aktiftir.</span>
-              `}
-              <span class="sub-cycle-badge">🔄 30 Günlük Otomatik Döngü</span>
-            </div>
-          </div>
-        `;
-      }).join('');
-
-      // İptal Butonlarını Bağla
-      container.querySelectorAll('.btn-sub-cancel').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const subId = e.target.dataset.subid;
-          if (confirm('Aboneliğinizi iptal etmek istediğinize emin misiniz? Bir sonraki 30 günlük tahsilat durdurulacaktır.')) {
-            const user = AuthService.getCurrentUser();
-            const res = SubscriptionEngine.cancelSubscription(subId, user.id);
-            if (res.success) {
-              showToast(res.message, 'info');
-              this.renderDashboardSubscriptions(user.id);
-              this.renderDashboardInvoices(user.id);
-            }
-          }
-        });
-      });
+      container.innerHTML = `
+        <div class="dash-empty-state">
+          <span class="empty-icon">📦</span>
+          <h4>Aktif paket ve abonelik durumunuz</h4>
+          <p>Güncel paketlerinizi, deneme/tahsilat tarihlerinizi görmek veya aboneliğinizi istediğiniz zaman iptal etmek için Faturalama Portalınızı kullanın — bu bilgiler tamamen Paddle'ın güvenli sisteminde tutulur.</p>
+          <button type="button" class="btn-primary-glow btn-sm" id="btnOpenPortalFromSubs">🔒 Faturalama Portalını Aç</button>
+        </div>
+      `;
+      const btn = document.getElementById('btnOpenPortalFromSubs');
+      if (btn) btn.addEventListener('click', () => this.openBillingPortal());
     },
 
     // Dashboard: Ödeme Yöntemi — kart bilgisi bu sitede hiç tutulmadığı için
@@ -1334,47 +1085,25 @@
       if (btn) btn.addEventListener('click', () => this.openBillingPortal());
     },
 
-    // Dashboard: Fatura & İşlem Geçmişi
+    // Dashboard: Fatura & İşlem Geçmişi — gerçek fatura/tahsilat kayıtları
+    // bu sitede tutulmaz, tamamen Paddle'ın Faturalama Portalı'nda görüntülenir.
     renderDashboardInvoices(businessId) {
       const tbody = document.getElementById('invoiceTableBody');
-      const txs = SubscriptionEngine.getTransactions(businessId);
-
-      if (!txs.length) {
-        tbody.innerHTML = `
-          <tr>
-            <td colspan="6" style="text-align:center;padding:2rem;color:var(--color-text-muted);">
-              Henüz gerçekleşmiş bir fatura veya provizyon işlemi bulunmuyor.
-            </td>
-          </tr>
-        `;
-        return;
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="6" style="text-align:center;padding:2rem;color:var(--color-text-muted);">
+            Fatura ve işlem geçmişinizi görmek için
+            <a href="#" id="btnOpenPortalFromInvoices" style="color:var(--color-primary);">Faturalama Portalınızı açın</a>.
+          </td>
+        </tr>
+      `;
+      const link = document.getElementById('btnOpenPortalFromInvoices');
+      if (link) {
+        link.addEventListener('click', (e) => {
+          e.preventDefault();
+          this.openBillingPortal();
+        });
       }
-
-      tbody.innerHTML = txs.map(tx => {
-        const dateStr = new Date(tx.date).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-
-        let typeBadge = '';
-        if (tx.type === 'trial_authorization') {
-          typeBadge = '<span class="tx-badge trial">7 Günlük Deneme</span>';
-        } else if (tx.type === 'recurring_charge') {
-          typeBadge = '<span class="tx-badge recurring">Periyodik Tahsilat</span>';
-        } else if (tx.type === 'cancellation') {
-          typeBadge = '<span class="tx-badge cancel">İptal Kaydı</span>';
-        }
-
-        const amountStr = tx.amount === 0 ? '₺0.00 (Ücretsiz)' : `₺${tx.amount.toLocaleString('tr-TR')}`;
-
-        return `
-          <tr>
-            <td>${dateStr}</td>
-            <td><strong>${escapeHtml(tx.packageName)}</strong><br><small style="color:var(--color-text-muted)">${escapeHtml(tx.description)}</small></td>
-            <td>${typeBadge}</td>
-            <td><strong class="${tx.amount === 0 ? 'text-free' : ''}">${amountStr}</strong></td>
-            <td><code>${escapeHtml(tx.cardMasked || '•••• 4242')}</code></td>
-            <td><span class="badge-status-active">✓ Onaylandı</span></td>
-          </tr>
-        `;
-      }).join('');
     },
 
     closeModal(modal) {
@@ -1387,7 +1116,6 @@
   // Dışarıya Açılan Global Arayüz
   window.OtomasyonBilling = {
     AuthService,
-    SubscriptionEngine,
     UIManager
   };
 

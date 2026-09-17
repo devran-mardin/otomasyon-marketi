@@ -19,7 +19,7 @@
   // (asıl gizli anahtar server/.env içindeki PADDLE_API_KEY'dir, buraya ASLA konmaz).
   // Paddle Dashboard > Developer Tools > Authentication'dan alın.
   // "test_..." ile başlıyorsa otomatik sandbox'a geçilir, "live_..." ise production'dır.
-  const PADDLE_CLIENT_TOKEN = 'test_73cc930baa345d767b102d9d774';
+  const PADDLE_CLIENT_TOKEN = 'live_1dc825d4fd110fa496d33e357cf';
 
   // Kullanıcı girdisini innerHTML'e basmadan önce kaçış karakterlerine çevirir (XSS koruması)
   function escapeHtml(str) {
@@ -103,7 +103,7 @@
       }
 
       const newUser = {
-        id: 'biz_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+        id: 'biz_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8),
         businessName: data.businessName.trim(),
         contactName: data.contactName.trim(),
         email: email,
@@ -268,7 +268,7 @@
     recordTransaction(tx) {
       const txs = DB.get(STORAGE_KEYS.TRANSACTIONS, []);
       const newTx = {
-        id: 'tx_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+        id: 'tx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
         date: new Date().toISOString(),
         ...tx
       };
@@ -808,7 +808,7 @@
             return;
           }
 
-          showToast(`Hoş geldiniz! ${res.user.businessName} işletme hesabınız başarıyla açıldı.`, 'success');
+          showToast(`Hoş geldiniz! ${escapeHtml(res.user.businessName)} işletme hesabınız başarıyla açıldı.`, 'success');
           this.closeModal(authModal);
 
           // Eğer bekleyen bir checkout paketi varsa checkout'u aç
@@ -834,7 +834,7 @@
             return;
           }
 
-          showToast(`Tekrar hoş geldiniz, ${res.user.businessName}!`, 'success');
+          showToast(`Tekrar hoş geldiniz, ${escapeHtml(res.user.businessName)}!`, 'success');
           this.closeModal(authModal);
 
           if (this.currentCheckoutPackage) {
@@ -1352,7 +1352,7 @@
 
       tbody.innerHTML = txs.map(tx => {
         const dateStr = new Date(tx.date).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        
+
         let typeBadge = '';
         if (tx.type === 'trial_authorization') {
           typeBadge = '<span class="tx-badge trial">7 Günlük Deneme</span>';

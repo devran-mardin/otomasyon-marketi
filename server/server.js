@@ -376,6 +376,9 @@ app.post('/api/leads', leadLimiter, (req, res) => {
 const adminLoginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
+  // Yalnızca HATALI denemeler sayılır; doğru şifreyle yapılan girişler
+  // yöneticiyi kilitlemez.
+  skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Çok fazla deneme yapıldı. Lütfen birkaç dakika sonra tekrar deneyin.' }

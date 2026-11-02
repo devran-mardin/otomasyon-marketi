@@ -5,6 +5,10 @@
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
+/* `hidden` niteliği, display:flex gibi kurallar tarafından ezilmesin.
+   Aksi halde girişten sonra giriş ekranı kaybolmuyordu. */
+[hidden] { display: none !important; }
+
 :root {
   --color-bg: #090d16;
   --color-surface: rgba(255, 255, 255, 0.03);

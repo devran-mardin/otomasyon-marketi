@@ -59,16 +59,9 @@ const PRODUCTS = {
     mode: 'payment',
     trialDays: 0
   },
-  'telegram-vip-bot': {
-    name: 'Telegram Akıllı Mesaj Yanıtlayıcı & VIP Bot',
-    amount: 199000,
-    currency: 'try',
-    mode: 'subscription',
-    trialDays: 7
-  },
-  'galeriai-oto-galeri-botu': {
-    name: 'GaleriAI - Oto Galeri Yönetim & AI Asistan Botu',
-    amount: 499000,
+  'telegram-asistani': {
+    name: 'Telegram Asistanı',
+    amount: 320000,
     currency: 'try',
     mode: 'subscription',
     trialDays: 7

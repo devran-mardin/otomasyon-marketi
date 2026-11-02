@@ -317,6 +317,12 @@ function initProductSearch() {
 
 
 // ── 5. Web İletişim Formu ──
+// Backend'in adresi: localhost'ta yerel sunucuya, canlıda Railway'e bağlanır
+// (billing.js'deki API_BASE ile aynı mantık).
+const CONTACT_API_BASE = ["localhost", "127.0.0.1"].includes(window.location.hostname)
+  ? "http://localhost:3000"
+  : "https://api.otomasyonmarketi.net";
+
 function initContactForm() {
   const form = document.getElementById("contactForm");
   const statusMsg = document.getElementById("formStatus");
@@ -330,6 +336,15 @@ function initContactForm() {
     const phone = document.getElementById("formPhone").value.trim();
     const service = document.getElementById("formService").value;
     const msg = document.getElementById("formMessage").value.trim();
+
+    // Lead'i admin panelinde görünsün diye backend'e kaydet. Bu istek WhatsApp
+    // yönlendirmesini bloklamaz — backend geçici olarak erişilemez olsa bile
+    // kullanıcı deneyimi etkilenmez.
+    fetch(`${CONTACT_API_BASE}/api/leads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone, service, message: msg })
+    }).catch(() => {});
 
     const waText = encodeURIComponent(
       `Merhaba, web sitenizdeki İletişim Formu üzerinden mesaj gönderiyorum:\n\n` +

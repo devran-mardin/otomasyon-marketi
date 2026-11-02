@@ -143,8 +143,41 @@ Paddle aboneliklerini/faturalarını dönen bir endpoint eklemek, panel'i o
 veriyle doldurmak, "İptal Et"i gerçek Paddle API'sine (ya da Customer
 Portal'ın cancel linkine) bağlamak.
 
+## Yönetici Paneli (/admin.html)
+
+Site kökündeki `admin.html`, basit şifreyle korunan, gerçek verileri gösteren bir
+yönetim panelidir (arama motorlarından `robots.txt` ile gizlenmiştir). Üç veri
+kaynağı kullanır:
+
+1. **Lead'ler** — `POST /api/leads`, ana sitedeki iletişim formunun WhatsApp
+   yönlendirmesine ek olarak gönderdiği kayıtlar. `leads` tablosunda tutulur.
+2. **Ödeme Geçmişi** — `POST /api/webhook`'a Paddle'dan gelen
+   `transaction.completed` / `subscription.canceled` / `transaction.payment_failed`
+   olayları artık konsola loglamanın yanı sıra `payment_events` tablosuna da
+   yazılıyor.
+3. **Paddle (Canlı)** — `GET /api/admin/paddle/customers|subscriptions|transactions`
+   uç noktaları, panel açıldığında doğrudan Paddle API'sinden anlık veri çeker
+   (kanonik kaynak budur; yukarıdaki iki madde yalnızca bu sunucuya ulaşan
+   olayların bir kopyasıdır).
+
+**Depolama:** Ekstra bir servise (Supabase vb.) ihtiyaç duymadan, Node'un
+yerleşik `node:sqlite` modülüyle (native derleme/Visual Studio Build Tools
+gerektirmez) tek dosyalık bir SQLite veritabanı kullanılır. Yerelde
+`server/data/app.db` yeterlidir. **Railway'de bu dosya kalıcı olmaz** —
+deploy'lar arasında sıfırlanmaması için Railway servisinizde bir **Volume**
+oluşturup (ör. `/data`'ya bağlayın) `.env`'deki `DB_PATH` değişkenini
+`/data/app.db` yapın.
+
+**Giriş:** `.env`'deki `ADMIN_PASSWORD` (panel şifresi) ve
+`ADMIN_SESSION_SECRET` (oturum token'larını imzalayan rastgele anahtar,
+üretmek için: `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`)
+mutlaka doldurulmalı — boşsa sunucu hiç açılmaz (bkz. `REQUIRED_ENV`).
+Oturum 12 saat sonra kendiliğinden sona erer, token yalnızca tarayıcının
+`sessionStorage`'ında tutulur (sekme kapanınca silinir).
+
 ## Önerilen Sonraki Adım
 
-Şu an ödeme kayıtları yalnızca konsola loglanıyor. Üretim için `transaction.completed`
-webhook'unda gelen veriyi kalıcı bir veritabanına (kit içindeki `_skills/supabase` ile
-Supabase önerilir) yazmanız ve işletmeye e-posta/WhatsApp bildirimi eklemeniz tavsiye edilir.
+Ödeme geçmişi ve lead'ler artık kalıcı olarak (yukarıdaki SQLite veritabanında)
+tutuluyor. Bir sonraki adım olarak yeni bir `transaction.completed` geldiğinde
+işletmeye e-posta/WhatsApp bildirimi eklemek faydalı olur (şu an yalnızca
+panelden manuel kontrol ediliyor).

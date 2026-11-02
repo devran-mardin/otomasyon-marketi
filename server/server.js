@@ -19,12 +19,17 @@ const rateLimit = require('express-rate-limit');
 const crypto = require('crypto');
 
 const { PRODUCTS, CUSTOM_PACKAGE_DISCOUNT_PERCENT } = require('./catalog');
+const db = require('./db');
+const adminAuth = require('./admin-auth');
 
 // ── Ortam Değişkeni Kontrolü — eksikse sunucu hiç ayağa kalkmasın ──
 // PADDLE_WEBHOOK_SECRET kasıtlı olarak burada YOK: henüz bir Paddle webhook
 // destination'ı kurmadan da (yerelde checkout akışını test etmek için) sunucuyu
 // ayağa kaldırabilesiniz. Eksikse yalnızca /api/webhook isteği geldiğinde hata verir.
-const REQUIRED_ENV = ['PADDLE_API_KEY', 'PADDLE_ENV', 'CLIENT_URL', 'ALLOWED_ORIGINS'];
+const REQUIRED_ENV = [
+  'PADDLE_API_KEY', 'PADDLE_ENV', 'CLIENT_URL', 'ALLOWED_ORIGINS',
+  'ADMIN_PASSWORD', 'ADMIN_SESSION_SECRET'
+];
 const missing = REQUIRED_ENV.filter((key) => !process.env[key]);
 if (missing.length) {
   console.error(`[FATAL] Eksik ortam değişkeni: ${missing.join(', ')}. .env dosyanızı kontrol edin (bkz. .env.example).`);
@@ -100,6 +105,17 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
     return res.status(400).send('Webhook Error: İmza formatı geçersiz.');
   }
 
+  // Eski (yakalanıp tekrar gönderilen) imzalı istekleri reddet: Paddle'ın
+  // önerdiği gibi zaman damgası 5 dakikadan eski olmamalı.
+  const WEBHOOK_TOLERANCE_SEC = 5 * 60;
+  const tsNum = Number(ts);
+  if (!Number.isFinite(tsNum) || Math.abs(Date.now() / 1000 - tsNum) > WEBHOOK_TOLERANCE_SEC) {
+    return res.status(400).send('Webhook Error: Zaman damgası geçersiz veya çok eski.');
+  }
+
+  if (!Buffer.isBuffer(req.body)) {
+    return res.status(400).send('Webhook Error: Gövde okunamadı.');
+  }
   const rawBody = req.body.toString('utf8');
   const signedPayload = `${ts}:${rawBody}`;
   const computedHash = crypto
@@ -129,18 +145,46 @@ app.post('/api/webhook', express.raw({ type: 'application/json' }), (req, res) =
         `[webhook] Ödeme tamamlandı — txn=${txn.id} customer=${txn.customer_id} ` +
         `total=${txn.details?.totals?.total} ${txn.currency_code}`
       );
-      // TODO (önerilir): Bu kaydı kalıcı bir veritabanına (ör. Supabase) yazın ve
-      // işletmeye/size bilgilendirme e-postası gönderin. Şu an yalnızca loglanıyor.
+      db.insertPaymentEvent({
+        eventId: event.event_id || null,
+        eventType: event.event_type,
+        referenceId: txn.id,
+        customerId: txn.customer_id || null,
+        amount: txn.details?.totals?.total ? Number(txn.details.totals.total) : null,
+        currency: txn.currency_code || null,
+        status: txn.status || null,
+        raw: rawBody
+      });
       break;
     }
     case 'subscription.canceled': {
       const sub = event.data;
       console.log(`[webhook] Abonelik sona erdi/iptal edildi: ${sub.id}`);
+      db.insertPaymentEvent({
+        eventId: event.event_id || null,
+        eventType: event.event_type,
+        referenceId: sub.id,
+        customerId: sub.customer_id || null,
+        amount: null,
+        currency: null,
+        status: sub.status || null,
+        raw: rawBody
+      });
       break;
     }
     case 'transaction.payment_failed': {
       const txn = event.data;
       console.warn(`[webhook] Tahsilat BAŞARISIZ: customer=${txn.customer_id}`);
+      db.insertPaymentEvent({
+        eventId: event.event_id || null,
+        eventType: event.event_type,
+        referenceId: txn.id,
+        customerId: txn.customer_id || null,
+        amount: null,
+        currency: txn.currency_code || null,
+        status: txn.status || null,
+        raw: rawBody
+      });
       break;
     }
     default:
@@ -294,6 +338,133 @@ app.post('/api/create-portal-session', apiLimiter, async (req, res) => {
   } catch (err) {
     console.error('[create-portal-session]', err);
     res.status(400).json({ error: 'Faturalama portalı açılamadı.' });
+  }
+});
+
+// ── Lead Kaydı — Web İletişim Formu ──
+// Form gönderildiğinde WhatsApp'a yönlendirmeye EK olarak (onun yerine değil)
+// burada da kaydedilir, böylece admin panelinden görülebilir.
+const leadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Çok fazla istek gönderildi. Lütfen birkaç dakika sonra tekrar deneyin.' }
+});
+
+app.post('/api/leads', leadLimiter, (req, res) => {
+  const { name, phone, service, message } = req.body || {};
+
+  if (typeof name !== 'string' || !name.trim() || name.length > 120) {
+    return res.status(400).json({ error: 'Geçerli bir ad gerekli.' });
+  }
+  if (typeof phone !== 'string' || !phone.trim() || phone.length > 40) {
+    return res.status(400).json({ error: 'Geçerli bir telefon gerekli.' });
+  }
+
+  db.insertLead({
+    name: name.trim(),
+    phone: phone.trim(),
+    service: toMetadataString(service, 120),
+    message: toMetadataString(message, 1000)
+  });
+
+  res.json({ ok: true });
+});
+
+// ── Admin Paneli — Basit Şifreli Oturum ──
+const adminLoginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Çok fazla deneme yapıldı. Lütfen birkaç dakika sonra tekrar deneyin.' }
+});
+
+const ADMIN_SESSION_TTL_MS = 12 * 60 * 60 * 1000; // 12 saat
+
+app.post('/api/admin/login', adminLoginLimiter, (req, res) => {
+  const { password } = req.body || {};
+  if (typeof password !== 'string' || !password || password.length > 200) {
+    return res.status(400).json({ error: 'Şifre gerekli.' });
+  }
+
+  const expected = Buffer.from(process.env.ADMIN_PASSWORD);
+  const given = Buffer.from(password);
+  const isValid = expected.length === given.length && crypto.timingSafeEqual(expected, given);
+  if (!isValid) {
+    return res.status(401).json({ error: 'Şifre hatalı.' });
+  }
+
+  const token = adminAuth.sign({ role: 'admin' }, process.env.ADMIN_SESSION_SECRET, ADMIN_SESSION_TTL_MS);
+  res.json({ token, expiresInMs: ADMIN_SESSION_TTL_MS });
+});
+
+function requireAdmin(req, res, next) {
+  const header = req.headers.authorization || '';
+  const token = header.startsWith('Bearer ') ? header.slice(7) : null;
+  const payload = token && adminAuth.verify(token, process.env.ADMIN_SESSION_SECRET);
+  if (!payload || payload.role !== 'admin') {
+    return res.status(401).json({ error: 'Yetkisiz erişim. Lütfen tekrar giriş yapın.' });
+  }
+  next();
+}
+
+app.get('/api/admin/leads', requireAdmin, (req, res) => {
+  res.json({ leads: db.listLeads(200) });
+});
+
+app.get('/api/admin/payment-events', requireAdmin, (req, res) => {
+  res.json({ events: db.listPaymentEvents(200) });
+});
+
+app.get('/api/admin/stats', requireAdmin, (req, res) => {
+  const events = db.listPaymentEvents(1000);
+  const completed = events.filter((e) => e.event_type === 'transaction.completed');
+  const revenueByCurrency = {};
+  for (const e of completed) {
+    if (!e.currency || e.amount == null) continue;
+    revenueByCurrency[e.currency] = (revenueByCurrency[e.currency] || 0) + e.amount;
+  }
+
+  res.json({
+    leadCount: db.countLeads(),
+    completedTransactions: completed.length,
+    revenueByCurrency,
+    failedPayments: events.filter((e) => e.event_type === 'transaction.payment_failed').length,
+    canceledSubscriptions: events.filter((e) => e.event_type === 'subscription.canceled').length
+  });
+});
+
+// Paddle'daki gerçek (canlı) müşteri/abonelik/işlem verisini panelde göstermek için.
+app.get('/api/admin/paddle/customers', requireAdmin, async (req, res) => {
+  try {
+    const result = await paddleFetch('/customers?per_page=50&order_by=created_at[DESC]');
+    res.json(result);
+  } catch (err) {
+    console.error('[admin/paddle/customers]', err);
+    res.status(502).json({ error: 'Paddle müşteri listesi alınamadı.' });
+  }
+});
+
+app.get('/api/admin/paddle/subscriptions', requireAdmin, async (req, res) => {
+  try {
+    // Not: Paddle'ın /subscriptions uç noktası yalnızca 'id' ile sıralamaya izin verir.
+    const result = await paddleFetch('/subscriptions?per_page=50&order_by=id[DESC]');
+    res.json(result);
+  } catch (err) {
+    console.error('[admin/paddle/subscriptions]', err);
+    res.status(502).json({ error: 'Paddle abonelik listesi alınamadı.' });
+  }
+});
+
+app.get('/api/admin/paddle/transactions', requireAdmin, async (req, res) => {
+  try {
+    const result = await paddleFetch('/transactions?per_page=50&order_by=created_at[DESC]');
+    res.json(result);
+  } catch (err) {
+    console.error('[admin/paddle/transactions]', err);
+    res.status(502).json({ error: 'Paddle işlem listesi alınamadı.' });
   }
 });
 

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Yönetici Paneli — OtomasyonAI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="icon" type="image/png" href="assets/logo.png?v=20260827_03">
+  <link rel="stylesheet" href="admin.css?v=20260920_01">
+</head>
+
+<body>
+
+  <!-- ── Giriş Ekranı ── -->
+  <section id="loginScreen" class="login-screen">
+    <form id="loginForm" class="login-card">
+      <img src="assets/logo.png" alt="OtomasyonAI" class="login-logo">
+      <h1>Yönetici Paneli</h1>
+      <p class="login-sub">Devam etmek için panel şifresini girin.</p>
+      <input type="password" id="loginPassword" placeholder="Şifre" autocomplete="current-password" required>
+      <button type="submit" id="loginBtn">Giriş Yap</button>
+      <p id="loginError" class="login-error" role="alert"></p>
+    </form>
+  </section>
+
+  <!-- ── Panel ── -->
+  <section id="panelScreen" class="panel-screen" hidden>
+    <header class="panel-header">
+      <div class="panel-header-title">
+        <img src="assets/logo.png" alt="OtomasyonAI" class="panel-logo">
+        <h1>Yönetici Paneli</h1>
+      </div>
+      <button id="logoutBtn" class="logout-btn">Çıkış Yap</button>
+    </header>
+
+    <nav class="panel-tabs" id="panelTabs">
+      <button class="tab-btn active" data-tab="overview">Genel Bakış</button>
+      <button class="tab-btn" data-tab="leads">Lead'ler</button>
+      <button class="tab-btn" data-tab="payments">Ödeme Geçmişi</button>
+      <button class="tab-btn" data-tab="paddle">Paddle (Canlı)</button>
+    </nav>
+
+    <main class="panel-content">
+
+      <!-- Genel Bakış -->
+      <div class="tab-panel active" id="tab-overview">
+        <div class="stat-grid" id="statGrid">
+          <div class="stat-card"><span class="stat-label">Toplam Lead</span><span class="stat-value" id="statLeads">—</span></div>
+          <div class="stat-card"><span class="stat-label">Tamamlanan Ödeme</span><span class="stat-value" id="statCompleted">—</span></div>
+          <div class="stat-card"><span class="stat-label">Başarısız Tahsilat</span><span class="stat-value" id="statFailed">—</span></div>
+          <div class="stat-card"><span class="stat-label">İptal Edilen Abonelik</span><span class="stat-value" id="statCanceled">—</span></div>
+        </div>
+        <h2 class="section-title">Gelir (Webhook Kayıtlarından)</h2>
+        <div id="revenueList" class="revenue-list">
+          <p class="empty-msg">Yükleniyor…</p>
+        </div>
+        <p class="hint-text">Bu rakamlar yalnızca <code>/api/webhook</code> ile bu sunucuya ulaşan olaylardan hesaplanır. Kesin/kanonik mali veriler için Paddle Dashboard'a bakın.</p>
+      </div>
+
+      <!-- Lead'ler -->
+      <div class="tab-panel" id="tab-leads">
+        <div class="panel-toolbar">
+          <h2 class="section-title">İletişim Formu Lead'leri</h2>
+          <button class="refresh-btn" data-refresh="leads">Yenile</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="leadsTable">
+            <thead>
+              <tr><th>Tarih</th><th>Ad</th><th>Telefon</th><th>İlgilendiği Hizmet</th><th>Mesaj</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="empty-msg" id="leadsEmpty" hidden>Henüz lead kaydı yok.</p>
+      </div>
+
+      <!-- Ödeme Geçmişi -->
+      <div class="tab-panel" id="tab-payments">
+        <div class="panel-toolbar">
+          <h2 class="section-title">Webhook Ödeme Olayları</h2>
+          <button class="refresh-btn" data-refresh="payments">Yenile</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="paymentsTable">
+            <thead>
+              <tr><th>Tarih</th><th>Olay</th><th>Tutar</th><th>Durum</th><th>Müşteri ID</th><th>Referans</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="empty-msg" id="paymentsEmpty" hidden>Henüz ödeme olayı kaydı yok.</p>
+      </div>
+
+      <!-- Paddle Canlı -->
+      <div class="tab-panel" id="tab-paddle">
+        <div class="panel-toolbar">
+          <h2 class="section-title">Müşteriler</h2>
+          <button class="refresh-btn" data-refresh="paddle">Yenile</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="customersTable">
+            <thead><tr><th>Ad</th><th>E-posta</th><th>Durum</th><th>Oluşturulma</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h2 class="section-title">Abonelikler</h2>
+        <div class="table-wrap">
+          <table class="data-table" id="subscriptionsTable">
+            <thead><tr><th>ID</th><th>Durum</th><th>Müşteri ID</th><th>Sonraki Fatura</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h2 class="section-title">İşlemler</h2>
+        <div class="table-wrap">
+          <table class="data-table" id="transactionsTable">
+            <thead><tr><th>ID</th><th>Durum</th><th>Tutar</th><th>Müşteri ID</th><th>Oluşturulma</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <p class="hint-text">Bu veriler doğrudan Paddle API'sinden canlı çekilir (kanoniktir).</p>
+      </div>
+
+    </main>
+  </section>
+
+  <script src="admin.js?v=20261102_01"></script>
+</body>
+
+</html>

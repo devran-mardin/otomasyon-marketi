@@ -21,6 +21,10 @@ Yapay zeka destekli otomasyon çözümlerinin (WhatsApp, Instagram, Telegram, E-
   Detaylar için `server/README.md`.
 - ⚖️ **Yasal Uyum:** KVKK, Gizlilik Politikası ve 7 Gün Ücretsiz Cayma Hakkı Şartları (`gizlilik-ve-kvkk.html`).
 - 🚫 **Özel 404 Sayfası:** Şık hata yönetimi (`404.html`).
+- 🔐 **Yönetici Paneli:** `admin.html` — şifreyle korunan, arama motorlarından
+  gizli panel. İletişim formu lead'lerini, Paddle webhook'undan gelen ödeme
+  geçmişini ve Paddle'dan canlı çekilen müşteri/abonelik/işlem listesini
+  gösterir. Detaylar için `server/README.md` → "Yönetici Paneli".
 
 ## 💳 Ödeme Altyapısı
 

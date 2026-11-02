@@ -757,6 +757,18 @@
         const category = card.dataset.category || 'whatsapp';
         const productId = card.querySelector('.btn-open-modal')?.dataset.productId || '';
 
+        // "Yakında" ürünler henüz satışta değil: satın alma yerine pasif bir buton göster.
+        if (card.dataset.comingSoon === 'true') {
+          if (!card.querySelector('.btn-coming-soon')) {
+            const soonBtn = document.createElement('button');
+            soonBtn.className = 'btn-buy-package btn-coming-soon';
+            soonBtn.disabled = true;
+            soonBtn.innerHTML = '<span>Yakında Satışta</span>';
+            card.querySelector('.product-footer')?.appendChild(soonBtn);
+          }
+          return;
+        }
+
         // Kart altına "7 Gün Ücretsiz Başla" butonu ekle / güncelle
         let btnBuy = card.querySelector('.btn-buy-package');
         if (!btnBuy) {

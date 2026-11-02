@@ -222,9 +222,12 @@ app.post('/api/create-transaction', apiLimiter, async (req, res) => {
     // Fiyatlar İSTEMCİDEN DEĞİL, sunucudaki kataloğdan okunur.
     const items = [];
     for (const id of productIds) {
-      const product = PRODUCTS[id];
+      const product = Object.hasOwn(PRODUCTS, id) ? PRODUCTS[id] : null;
       if (!product) {
         return res.status(400).json({ error: `Bilinmeyen ürün: ${id}` });
+      }
+      if (product.comingSoon) {
+        return res.status(400).json({ error: `${product.name} henüz satışta değil.` });
       }
       items.push({ id, ...product });
     }

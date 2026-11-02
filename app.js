@@ -183,6 +183,11 @@ function initProductModal() {
       modalDesc.textContent = desc;
       modal.dataset.productId = btn.dataset.productId || "";
 
+      // "Yakında" ürünlerde satın alma butonu gizlenir, sadece bilgi alma kalır.
+      const isComingSoon = btn.dataset.comingSoon === "true";
+      const modalBuyBtn = document.getElementById("modalBuyPackageBtn");
+      if (modalBuyBtn) modalBuyBtn.hidden = isComingSoon;
+
       // Özellik listesini doldur
       modalFeatures.innerHTML = "";
       features.forEach(feat => {

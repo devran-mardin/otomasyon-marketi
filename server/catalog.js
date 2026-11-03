@@ -61,8 +61,6 @@ const PRODUCTS = {
   },
   'telegram-asistani': {
     name: 'Telegram Asistanı',
-    // Bot hazır olana kadar satışa kapalı (sitede "Yakında" olarak görünür).
-    comingSoon: true,
     amount: 320000,
     currency: 'try',
     mode: 'subscription',
